@@ -21,6 +21,7 @@ npm run dev        # http://localhost:3000
 | `npm run lint`      | ESLint (règles Next.js et Core Web Vitals)                            |
 | `npm test`          | Tests d'intégrité du contenu (slugs, références, liens internes…)     |
 | `npm run typecheck` | Vérification TypeScript seule (après un premier `dev` ou `build`)     |
+| `npm run nouveau-guide -- "Titre"` | Crée un nouvel article en brouillon (voir plus bas)    |
 
 ## Pages
 
@@ -36,7 +37,10 @@ npm run dev        # http://localhost:3000
 | `/a-propos`, `/contact`        | Présentation et contact                                     |
 | `/mentions-legales`, `/confidentialite`, `/cookies`, `/transparence` | Pages légales, avec des champs `[À compléter]` |
 | `/credits`                     | Auteurs et licences des photos                              |
+| `/plan-du-site`                | Toutes les pages du site, classées par rubrique             |
 | `/rss.xml`                     | Flux RSS des guides publiés                                 |
+
+Chaque page a sa propre adresse, ses propres titre et description, et peut être partagée ou indexée séparément. Dans l'en-tête, les rubriques **Destinations** et **Guides** ouvrent un menu déroulant vers leurs sous-pages ; sur mobile, ces sous-pages sont listées dans le menu.
 
 Une URL inconnue renvoie un vrai code **404**, et `/guides/page/1` redirige en **308** vers `/guides`.
 
@@ -53,7 +57,18 @@ src/content/
     └── *.ts             # un fichier par guide
 ```
 
-**Ajouter un guide :** dupliquez un fichier de `src/content/guides/`, modifiez-le, puis ajoutez-le dans `guides/index.ts`. Lancez ensuite `npm test` pour vérifier les liens internes et les références.
+### Écrire un article de blog
+
+1. **Créer le brouillon** :
+   ```bash
+   npm run nouveau-guide -- "Visiter Meknès en une journée" --categorie que-faire --destination fes
+   ```
+   Le script crée `src/content/guides/visiter-meknes-en-une-journee.ts` à partir d'un modèle et l'ajoute à la liste des guides. `--destination` est facultatif. Sans argument, le script affiche la liste des catégories et des destinations.
+2. **Écrire** : ouvrez le fichier et remplacez chaque texte « À compléter » (description, chapeau, parties, conseils). Chaque partie (`sections`) apparaît dans le sommaire.
+3. **Relire** : lancez `npm run dev` et ouvrez `http://localhost:3000/guides/<slug>`. Un bandeau « Brouillon » s'affiche.
+4. **Publier** : supprimez la ligne `draft: true`, lancez `npm test`, puis commitez et poussez. Vercel redéploie et l'article apparaît sur le site, dans le sitemap et dans le flux RSS.
+
+Un brouillon (`draft: true`) est visible en développement et sur les prévisualisations Vercel (branches, pull requests), mais **jamais en production**. Vous pouvez donc pousser un article inachevé sans risque.
 
 **Règles SEO vérifiées par `npm test` :** titre de guide ≤ 60 caractères (au-delà, Google le tronque), description entre 110 et 160 caractères, titres et descriptions uniques. Les destinations et catégories acceptent un champ `seoDescription` facultatif. Sans lui, leur résumé est complété automatiquement. Une catégorie n'est indexée qu'à partir de son premier guide publié (sans `demo: true`).
 
@@ -67,14 +82,17 @@ Dans les textes, deux mises en forme sont disponibles : `**gras**` et `[lien](/g
 
 `npm test` vérifie que chaque photo existe et possède un crédit complet. Sans `src`, une illustration de remplacement s'affiche. `next/image` sert automatiquement les formats AVIF/WebP aux bonnes dimensions (par exemple 433 Ko → 36 Ko en AVIF à 640 px).
 
-**Animations :** elles sont écrites en CSS (`src/app/globals.css`), sans bibliothèque JavaScript :
-- entrée de l'en-tête de l'accueil et zoom lent sur la photo ;
-- apparition des cartes au défilement ;
-- barre de progression de lecture et ombre de l'en-tête au défilement ;
-- zoom des photos au survol ;
-- transitions entre pages, où l'image d'une carte « glisse » vers la page de détail (`<ViewTransition>` de React).
+**Animations et effets 3D :** ils sont écrits en CSS (`src/app/globals.css`) avec quelques petits composants, sans bibliothèque JavaScript :
+- **accueil** : chaque mot du titre bascule en 3D, l'un après l'autre ; « ville après ville » est animé d'un reflet doré ; la photo zoome lentement ; les étoiles de zellige flottent en 3D ;
+- **profondeur à la souris** (`Parallax.tsx`) : la photo, les étoiles et la carte « Par où commencer ? » se déplacent à des vitesses différentes ;
+- **carrousel 3D des destinations** (`Carousel3D.tsx`) : rotation automatique, mise en pause au survol, au focus ou avec le bouton pause, flèches et points de navigation ;
+- **cartes inclinables** (`Tilt.tsx`) : les cartes de guides et de destinations s'inclinent en suivant la souris, avec un reflet lumineux ;
+- **bandeau défilant** des destinations et catégories sous l'en-tête de l'accueil ;
+- **défilement** : apparition des cartes avec une bascule 3D, en décalé, barre de progression de lecture, ombre de l'en-tête ;
+- **navigation** : menus déroulants qui s'ouvrent en 3D, soulignement animé, reflet sur les boutons, titres de page animés ;
+- **transitions entre pages** : l'image d'une carte « glisse » vers la page de détail (`<ViewTransition>` de React).
 
-Toutes sont désactivées si l'utilisateur a demandé à réduire les animations, et les navigateurs qui ne les gèrent pas affichent simplement le contenu.
+Les effets à la souris ne s'activent pas sur écran tactile. Tout est désactivé si l'utilisateur a demandé à réduire les animations, et les navigateurs qui ne gèrent pas un effet affichent simplement le contenu.
 
 > Si vous souhaitez plus tard publier sans toucher au code, un CMS « Git » gratuit (Decap CMS, Keystatic, TinaCMS…) peut éditer ces fichiers. Comparez leurs limites et leurs offres avant de choisir.
 
@@ -141,7 +159,7 @@ Les prévisualisations (branches, pull requests) reçoivent `robots: noindex` et
 
 ## Avant la mise en ligne
 
-- [ ] Remplacer les contenus d'exemple et retirer `demo: true`.
+- [ ] Remplacer les contenus d'exemple et retirer `demo: true` (ou écrire vos propres articles avec `npm run nouveau-guide`).
 - [ ] Compléter les photos, idéalement avec les vôtres : des photos originales renforcent la crédibilité du site.
 - [ ] Compléter les champs `[À compléter]` des pages légales.
 - [ ] Définir `NEXT_PUBLIC_SITE_URL` et `NEXT_PUBLIC_CONTACT_EMAIL`.

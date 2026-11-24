@@ -15,7 +15,7 @@ import { absoluteUrl } from "@/lib/seo";
  * La page de recherche (noindex) n'y figure pas non plus.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const guides = getAllGuides().filter((g) => !g.demo);
+  const guides = getAllGuides().filter((g) => !g.demo && !g.draft);
   const destinations = getAllDestinations().filter((d) => !d.demo);
   const latest = guides[0]?.updatedAt ?? guides[0]?.publishedAt;
 

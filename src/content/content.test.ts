@@ -6,19 +6,22 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { guides as allGuides } from "@/content/guides";
 import { getPhotoBySrc, photos } from "@/content/photos";
 import { legalNav, mainNav } from "@/config/site";
 import {
   RESERVED_GUIDE_SLUGS,
   getAllCategories,
   getAllDestinations,
-  getAllGuides,
   getTotalGuidePages,
 } from "@/lib/content";
 import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from "@/lib/seo";
 import type { Block } from "@/lib/types";
 
-const guides = getAllGuides();
+// Tous les guides, brouillons compris : la structure est vérifiée dès l'écriture.
+const guides = allGuides;
+// Guides publiés : seuls eux sont soumis aux règles SEO et peuvent être liés.
+const published = allGuides.filter((g) => !g.draft);
 const destinations = getAllDestinations();
 const categories = getAllCategories();
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -32,7 +35,7 @@ const knownPaths = new Set<string>([
   ...mainNav.map((n) => n.href),
   ...legalNav.map((n) => n.href),
   ...destinations.map((d) => `/destinations/${d.slug}`),
-  ...guides.map((g) => `/guides/${g.slug}`),
+  ...published.map((g) => `/guides/${g.slug}`),
   ...categories.map((c) => `/guides/categorie/${c.slug}`),
   ...Array.from({ length: getTotalGuidePages() - 1 }, (_, i) => `/guides/page/${i + 2}`),
 ]);
@@ -88,7 +91,7 @@ describe("contenu", () => {
   });
 
   it("les métadonnées tiennent dans les limites affichées par Google", () => {
-    for (const g of guides) {
+    for (const g of published) {
       // Au-delà de 60 caractères, le titre est tronqué dans les résultats.
       expect(g.title.length, `${g.slug} : titre trop long`).toBeLessThanOrEqual(MAX_TITLE_LENGTH);
       expect(g.description.length, `${g.slug} : description trop courte`).toBeGreaterThanOrEqual(110);
@@ -105,8 +108,8 @@ describe("contenu", () => {
   });
 
   it("les titres de guides sont uniques", () => {
-    expect(unique(guides.map((g) => g.title.toLowerCase()))).toBe(true);
-    expect(unique(guides.map((g) => g.description.toLowerCase()))).toBe(true);
+    expect(unique(published.map((g) => g.title.toLowerCase()))).toBe(true);
+    expect(unique(published.map((g) => g.description.toLowerCase()))).toBe(true);
   });
 
   it("chaque image a un texte alternatif", () => {

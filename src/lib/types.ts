@@ -92,4 +92,9 @@ export type Guide = {
   keyTips?: string[];
   featured?: boolean;
   demo?: boolean;
+  /**
+   * Brouillon : visible en développement (`npm run dev`) et sur les
+   * prévisualisations Vercel, mais absent du site de production.
+   */
+  draft?: boolean;
 };

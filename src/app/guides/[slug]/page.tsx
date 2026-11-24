@@ -6,7 +6,7 @@ import { AffiliateDisclosure } from "@/components/Affiliate";
 import { ArticleBody, TableOfContents } from "@/components/ArticleBody";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CoverImage } from "@/components/CoverImage";
-import { DemoNotice } from "@/components/DemoNotice";
+import { DemoNotice, DraftNotice } from "@/components/DemoNotice";
 import { GuideGrid } from "@/components/GuideCard";
 import { JsonLd } from "@/components/JsonLd";
 import { Container } from "@/components/PageHeader";
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: PageProps<"/guides/[slug]">):
     type: "article",
     publishedTime: guide.publishedAt,
     modifiedTime: guide.updatedAt ?? guide.publishedAt,
-    noindex: guide.demo,
+    noindex: guide.demo || guide.draft,
     // Photo de couverture si elle existe, sinon le visuel généré pour l'article.
     ogImagePath: guide.cover.src ?? `/guides/${guide.slug}/opengraph-image`,
   });
@@ -127,6 +127,7 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
               <span>{getReadingTime(guide)} min de lecture</span>
             </p>
             <div className="mt-6 space-y-3">
+              {guide.draft && <DraftNotice />}
               {guide.demo && <DemoNotice kind="guide" />}
               {hasActiveAffiliateLinks(guide) && <AffiliateDisclosure />}
             </div>

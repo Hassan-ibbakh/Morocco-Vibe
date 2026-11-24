@@ -12,7 +12,7 @@ const rfc822 = (isoDate: string) => new Date(`${isoDate}T08:00:00Z`).toUTCString
  * (`demo: true`) n'y figurent pas, comme dans le sitemap.
  */
 export function GET() {
-  const guides = getAllGuides().filter((g) => !g.demo);
+  const guides = getAllGuides().filter((g) => !g.demo && !g.draft);
   const items = guides
     .map((g) => {
       const url = absoluteUrl(`/guides/${g.slug}`);

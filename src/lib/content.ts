@@ -13,7 +13,14 @@ const byDateDesc = (a: Guide, b: Guide) =>
   (b.updatedAt ?? b.publishedAt).localeCompare(a.updatedAt ?? a.publishedAt) ||
   a.slug.localeCompare(b.slug);
 
-const sortedGuides = [...guides].sort(byDateDesc);
+/**
+ * Les brouillons (`draft: true`) ne sont visibles qu'en développement et sur
+ * les prévisualisations Vercel : ils n'apparaissent jamais en production.
+ */
+export const showDrafts =
+  process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
+
+const sortedGuides = guides.filter((g) => showDrafts || !g.draft).sort(byDateDesc);
 
 /* ---------- Guides ---------- */
 
@@ -37,7 +44,7 @@ export function getGuidesByCategory(slug: string): Guide[] {
 
 /** Une catégorie n'est indexée que si elle contient au moins un guide publié (non démo). */
 export function isCategoryIndexable(slug: string): boolean {
-  return getGuidesByCategory(slug).some((g) => !g.demo);
+  return getGuidesByCategory(slug).some((g) => !g.demo && !g.draft);
 }
 
 export function getGuidesByDestination(slug: string): Guide[] {

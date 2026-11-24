@@ -15,14 +15,14 @@ export function PageHeader({
   return (
     <header className="max-w-3xl">
       {eyebrow && (
-        <p className="mb-3 text-sm font-semibold tracking-[0.18em] text-terracotta uppercase">
+        <p className="hero-fade mb-3 text-sm font-semibold tracking-[0.18em] text-terracotta uppercase">
           {eyebrow}
         </p>
       )}
-      <h1 className="font-display text-4xl leading-[1.1] font-semibold text-balance text-ink sm:text-5xl">
+      <h1 className="title-3d font-display text-4xl leading-[1.1] font-semibold text-balance text-ink sm:text-5xl">
         {title}
       </h1>
-      {intro && <div className="mt-5 text-lg leading-relaxed text-ink-soft">{intro}</div>}
+      {intro && <div className="hero-fade mt-5 text-lg leading-relaxed text-ink-soft [animation-delay:200ms]">{intro}</div>}
       {children}
     </header>
   );
