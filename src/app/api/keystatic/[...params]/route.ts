@@ -5,10 +5,12 @@ import config from "../../../../../keystatic.config";
  * API du tableau de bord : connexion GitHub et lecture/écriture du contenu.
  * En production, elle n'est active que si les variables de l'application
  * GitHub sont définies (voir le README) ; sinon elle répond 503 au lieu de
- * faire échouer le build.
+ * faire échouer le build. En développement, elle reste toujours active : c'est
+ * elle qui exécute l'assistant de création de l'application GitHub.
  */
 const configured =
   config.storage.kind === "local" ||
+  process.env.NODE_ENV === "development" ||
   Boolean(
     process.env.KEYSTATIC_GITHUB_CLIENT_ID &&
       process.env.KEYSTATIC_GITHUB_CLIENT_SECRET &&

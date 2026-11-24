@@ -78,13 +78,13 @@ Les limites SEO (titre de 60 caractères maximum, description de 110 à 160 cara
 #### Mise en service de la connexion GitHub (une seule fois)
 
 1. En local, activez le mode GitHub : ajoutez `NEXT_PUBLIC_KEYSTATIC_STORAGE=github` dans `.env.local`, lancez `npm run dev` et ouvrez `http://localhost:3000/keystatic`.
-2. Keystatic propose de **créer une application GitHub** : suivez l'assistant en étant connecté à votre compte GitHub. Il écrit dans `.env.local` les variables `KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET` et `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`.
+2. Keystatic propose de **créer une application GitHub** : suivez l'assistant en étant connecté à votre compte GitHub. Il écrit dans le fichier `.env` (ignoré par Git) les variables `KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET` et `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`.
 3. Installez l'application GitHub sur le dépôt `Morocco-Vibe` si l'assistant le demande.
 4. Copiez ces quatre variables dans **Vercel → Settings → Environment Variables** (environnement Production), puis redéployez.
 5. Sur GitHub (**Settings → Developer settings → GitHub Apps →** votre application), ajoutez l'adresse de retour de production : `https://votre-domaine/api/keystatic/github/oauth/callback`.
 6. Retirez `NEXT_PUBLIC_KEYSTATIC_STORAGE=github` de `.env.local` pour revenir au mode local.
 
-Tant que ces variables ne sont pas définies en production, `/keystatic` s'affiche mais la connexion est refusée (l'API répond « non configuré ») ; le site lui-même fonctionne normalement. Ne commitez jamais `.env.local`.
+Tant que ces variables ne sont pas définies en production, `/keystatic` s'affiche mais la connexion est refusée (l'API répond « non configuré ») ; le site lui-même fonctionne normalement. Ne commitez jamais `.env` ni `.env.local`.
 
 ### Écrire un article de blog
 

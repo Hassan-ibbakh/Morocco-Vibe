@@ -35,6 +35,8 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  // En développement : autorise aussi l'accès via http://127.0.0.1:3000.
+  allowedDevOrigins: ["127.0.0.1"],
   // Le contenu (dossier content/) est lu au build ; on l'inclut aussi dans
   // les fonctions serveur au cas où une page serait rendue à la demande.
   outputFileTracingIncludes: { "/**": ["./content/**/*"] },
