@@ -1,4 +1,5 @@
 import type { Guide } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 const guide: Guide = {
   slug: "merzouga-nuit-desert",
@@ -11,7 +12,8 @@ const guide: Guide = {
   destination: "merzouga",
   publishedAt: "2026-11-10",
   cover: {
-    alt: "Campement de tentes au pied des dunes au crépuscule",
+    ...photo("merzouga-nuit-desert"),
+    alt: "Tentes blanches d'un campement au pied des dunes près de Merzouga",
   },
   sections: [
     {

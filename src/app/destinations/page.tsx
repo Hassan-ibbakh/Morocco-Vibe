@@ -61,7 +61,7 @@ export default function DestinationsPage() {
                   {destinations
                     .filter((d) => d.region === region)
                     .map((d) => (
-                      <li key={d.slug} className="flex">
+                      <li key={d.slug} className="reveal flex">
                         <DestinationCard destination={d} />
                       </li>
                     ))}

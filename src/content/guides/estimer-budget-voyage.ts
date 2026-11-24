@@ -1,8 +1,9 @@
 import type { Guide } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 const guide: Guide = {
   slug: "estimer-budget-voyage",
-  title: "Estimer le budget d'un voyage au Maroc : une méthode en quatre postes",
+  title: "Budget d'un voyage au Maroc : la méthode en 4 postes",
   description:
     "Transport, hébergement, vie sur place, imprévus : une méthode simple pour estimer et suivre le budget de votre voyage au Maroc sans mauvaise surprise.",
   intro:
@@ -10,7 +11,8 @@ const guide: Guide = {
   category: "budget",
   publishedAt: "2026-10-20",
   cover: {
-    alt: "Carnet de comptes, pièces de monnaie et billets de train sur une table",
+    ...photo("estimer-budget-voyage"),
+    alt: "Étal d'épices en cônes colorés dans un souk marocain",
   },
   sections: [
     {

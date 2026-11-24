@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps<"/guides/page/[page
   if (!page || page < 2 || page > getTotalGuidePages()) return { title: "Page introuvable" };
   return pageMetadata({
     title: `Guides de voyage au Maroc — page ${page}`,
-    description: `Page ${page} de nos guides pour voyager au Maroc : préparatifs, itinéraires, visites et conseils pratiques.`,
+    description: `Page ${page} de nos guides pour voyager au Maroc : checklist avant le départ, itinéraires, idées de visites, budget et conseils pratiques sur place.`,
     path: `/guides/page/${page}`,
   });
 }

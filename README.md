@@ -35,6 +35,8 @@ npm run dev        # http://localhost:3000
 | `/recherche`                   | Recherche instantanée (côté navigateur, `noindex`)          |
 | `/a-propos`, `/contact`        | Présentation et contact                                     |
 | `/mentions-legales`, `/confidentialite`, `/cookies`, `/transparence` | Pages légales, avec des champs `[À compléter]` |
+| `/credits`                     | Auteurs et licences des photos                              |
+| `/rss.xml`                     | Flux RSS des guides publiés                                 |
 
 Une URL inconnue renvoie un vrai code **404**, et `/guides/page/1` redirige en **308** vers `/guides`.
 
@@ -53,9 +55,26 @@ src/content/
 
 **Ajouter un guide :** dupliquez un fichier de `src/content/guides/`, modifiez-le, puis ajoutez-le dans `guides/index.ts`. Lancez ensuite `npm test` pour vérifier les liens internes et les références.
 
+**Règles SEO vérifiées par `npm test` :** titre de guide ≤ 60 caractères (au-delà, Google le tronque), description entre 110 et 160 caractères, titres et descriptions uniques. Les destinations et catégories acceptent un champ `seoDescription` facultatif. Sans lui, leur résumé est complété automatiquement. Une catégorie n'est indexée qu'à partir de son premier guide publié (sans `demo: true`).
+
 Dans les textes, deux mises en forme sont disponibles : `**gras**` et `[lien](/guides/slug)`. Les types de blocs (`p`, `h3`, `list`, `tip`, `warning`, `image`, `affiliate`) sont décrits dans `src/lib/types.ts`.
 
-**Images :** placez vos photos libres de droits dans `public/images/…`, puis renseignez `cover: { src, alt, credit }`. Tant que `src` est vide, une illustration de remplacement s'affiche. `next/image` sert automatiquement des formats AVIF/WebP aux bonnes dimensions.
+**Photos :** les 16 photos actuelles proviennent de Wikimedia Commons, sous licence libre (CC0, CC BY, CC BY-SA). Leur auteur, leur licence et leur source sont enregistrés dans `src/content/photos.ts`. Le crédit s'affiche sous chaque photo et sur la page `/credits`, comme l'exigent ces licences. Pour ajouter une photo :
+
+1. placez le fichier dans `public/images/` (environ 1280 px de large suffit) ;
+2. ajoutez une entrée dans `src/content/photos.ts` (auteur, licence, lien vers la licence, page source) ;
+3. utilisez `cover: { ...photo("mon-id"), alt: "Description précise de la photo" }`.
+
+`npm test` vérifie que chaque photo existe et possède un crédit complet. Sans `src`, une illustration de remplacement s'affiche. `next/image` sert automatiquement les formats AVIF/WebP aux bonnes dimensions (par exemple 433 Ko → 36 Ko en AVIF à 640 px).
+
+**Animations :** elles sont écrites en CSS (`src/app/globals.css`), sans bibliothèque JavaScript :
+- entrée de l'en-tête de l'accueil et zoom lent sur la photo ;
+- apparition des cartes au défilement ;
+- barre de progression de lecture et ombre de l'en-tête au défilement ;
+- zoom des photos au survol ;
+- transitions entre pages, où l'image d'une carte « glisse » vers la page de détail (`<ViewTransition>` de React).
+
+Toutes sont désactivées si l'utilisateur a demandé à réduire les animations, et les navigateurs qui ne les gèrent pas affichent simplement le contenu.
 
 > Si vous souhaitez plus tard publier sans toucher au code, un CMS « Git » gratuit (Decap CMS, Keystatic, TinaCMS…) peut éditer ces fichiers. Comparez leurs limites et leurs offres avant de choisir.
 
@@ -70,8 +89,21 @@ L'identité du site (nom, slogan, description, navigation) se trouve dans `src/c
 | `GOOGLE_SITE_VERIFICATION`   | Code de vérification Google Search Console (balise meta)         |
 | `NEXT_PUBLIC_ADS_ENABLED`    | `true` pour activer les emplacements publicitaires               |
 | `NEXT_PUBLIC_ADS_CLIENT_ID`  | Identifiant fourni par la régie                                  |
+| `RESEND_API_KEY` 🔒          | Active le formulaire de contact (clé [Resend](https://resend.com), offre gratuite) |
+| `CONTACT_TO_EMAIL` 🔒        | Adresse qui reçoit les messages du formulaire                    |
+| `CONTACT_FROM_EMAIL` 🔒      | Expéditeur sur un domaine vérifié chez Resend (facultatif au début) |
 
-Aucune clé privée n'est nécessaire, et aucune n'est écrite dans le code.
+🔒 = variable privée, à définir uniquement dans Vercel, jamais dans le code ni dans un fichier commité.
+
+**Formulaire de contact :** il n'apparaît que si `RESEND_API_KEY` et `CONTACT_TO_EMAIL` sont définies. Sinon, la page Contact affiche l'adresse e-mail publique. Les messages sont validés côté serveur et protégés contre les robots par un champ piège ; ils sont envoyés par e-mail et jamais stockés par le site. La page étant générée au build, **redéployez après avoir ajouté ces variables**. Au-delà de quelques messages par jour, ajoutez une limitation de débit (par exemple le pare-feu de Vercel).
+
+## Sécurité et qualité
+
+- En-têtes HTTP : `Content-Security-Policy` (aucune ressource tierce autorisée), `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `nosniff`. Si vous ajoutez un service externe (mesure d'audience, publicité, vidéos), élargissez la CSP dans `next.config.ts`.
+- Intégration continue : `.github/workflows/ci.yml` lance le lint, les tests et le build à chaque push sur `main` et à chaque pull request.
+- Pages d'erreur : `not-found.tsx` (404), `error.tsx` (erreur d'une page) et `global-error.tsx` (erreur du layout racine).
+- Partage d'article sans script tiers : partage natif du téléphone, WhatsApp, Facebook, X, e-mail et copie du lien.
+- Flux RSS des guides publiés : `/rss.xml`.
 
 ## SEO
 
@@ -110,7 +142,7 @@ Les prévisualisations (branches, pull requests) reçoivent `robots: noindex` et
 ## Avant la mise en ligne
 
 - [ ] Remplacer les contenus d'exemple et retirer `demo: true`.
-- [ ] Ajouter des photos libres de droits avec leurs crédits.
+- [ ] Compléter les photos, idéalement avec les vôtres : des photos originales renforcent la crédibilité du site.
 - [ ] Compléter les champs `[À compléter]` des pages légales.
 - [ ] Définir `NEXT_PUBLIC_SITE_URL` et `NEXT_PUBLIC_CONTACT_EMAIL`.
 - [ ] Vérifier que le plan Vercel choisi correspond à l'usage, commercial ou non.

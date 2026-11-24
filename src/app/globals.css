@@ -100,11 +100,138 @@
     color: var(--color-terracotta);
   }
 
+  /* Barre de progression de lecture (articles). */
+  .reading-progress {
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+  }
+
   /* Bordure perforée façon timbre / billet. */
   .ticket-edge {
     background-image: radial-gradient(circle at 50% 0, transparent 6px, var(--color-sand-deep) 6.5px, transparent 7px);
     background-size: 18px 12px;
     background-repeat: repeat-x;
     height: 12px;
+  }
+}
+
+/* ------------------------------------------------------------------
+ * Animations
+ * Toutes respectent « réduire les animations » (prefers-reduced-motion)
+ * et n'animent que transform / opacity (pas de recalcul de mise en page).
+ * Les animations liées au défilement sont purement CSS : sans support
+ * navigateur, le contenu reste simplement visible.
+ * ------------------------------------------------------------------ */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(24px);
+  }
+}
+
+@keyframes ken-burns {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.98);
+  }
+}
+
+@keyframes progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes header-raise {
+  to {
+    box-shadow: 0 10px 30px -18px rgb(27 42 47 / 0.45);
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Entrée du héros au chargement. Le titre (élément LCP potentiel) ne fait
+     que glisser, sans opacité nulle, pour ne pas retarder son affichage. */
+  .hero-title {
+    animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .hero-fade {
+    animation: fade-up 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .hero-image {
+    animation: ken-burns 18s ease-out both;
+  }
+  .spin-slow {
+    animation: spin-slow 40s linear infinite;
+  }
+
+  @supports (animation-timeline: view()) {
+    /* Apparition des cartes et sections au défilement. */
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+    /* Barre de progression de lecture. */
+    .reading-progress {
+      animation: progress linear both;
+      animation-timeline: scroll(root);
+    }
+    /* Ombre de l'en-tête dès que l'on commence à défiler. */
+    .header-scroll {
+      animation: header-raise linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 120px;
+    }
+  }
+}
+
+/* Impression : tout le contenu visible, sans animation ni barre de lecture. */
+@media print {
+  .reveal,
+  .hero-fade,
+  .hero-title {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .reading-progress,
+  .header-scroll {
+    display: none !important;
+  }
+}
+
+/* Transitions de page (View Transitions API, via React <ViewTransition>). */
+::view-transition-group(*) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

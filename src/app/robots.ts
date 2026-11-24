@@ -7,8 +7,9 @@ export default function robots(): MetadataRoute.Robots {
   if (!isIndexable) {
     return { rules: { userAgent: "*", disallow: "/" } };
   }
+  // /recherche reste explorable : sa balise noindex doit pouvoir être lue.
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/recherche"] },
+    rules: { userAgent: "*", allow: "/" },
     sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

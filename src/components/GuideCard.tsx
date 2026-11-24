@@ -26,8 +26,10 @@ export function GuideCard({
         seed={guide.slug}
         palette={destination?.palette}
         sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
-        className="aspect-[16/10]"
+        className="aspect-16/10"
+        imgClassName="transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         showPlaceholderLabel={false}
+        transitionName={`guide-cover-${guide.slug}`}
       />
       <div className="flex flex-1 flex-col gap-3 p-5">
         <p className="flex flex-wrap items-center gap-2 text-xs font-semibold tracking-wider text-terracotta uppercase">
@@ -74,7 +76,7 @@ export function GuideGrid({
   return (
     <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {guides.map((g) => (
-        <li key={g.slug} className="flex">
+        <li key={g.slug} className="reveal flex">
           <div className="flex w-full">
             <GuideCard guide={g} headingLevel={headingLevel} />
           </div>

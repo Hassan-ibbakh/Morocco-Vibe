@@ -12,7 +12,7 @@ export default function NotFound() {
   return (
     <Container className="py-20 sm:py-28">
       <div className="mx-auto max-w-xl text-center">
-        <StarMark className="mx-auto h-14 w-14" />
+        <StarMark className="spin-slow mx-auto h-14 w-14" />
         <p className="mt-6 text-sm font-semibold tracking-[0.2em] text-terracotta-dark uppercase">Erreur 404</p>
         <h1 className="mt-3 font-display text-4xl font-semibold text-ink sm:text-5xl">
           Cette page s&apos;est perdue dans la médina.

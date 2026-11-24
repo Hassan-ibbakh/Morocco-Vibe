@@ -4,8 +4,8 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { GuideGrid } from "@/components/GuideCard";
 import { CategoryFilter } from "@/components/GuidesListing";
 import { Container, PageHeader } from "@/components/PageHeader";
-import { getAllCategories, getCategory, getGuidesByCategory } from "@/lib/content";
-import { pageMetadata } from "@/lib/seo";
+import { getAllCategories, getCategory, getGuidesByCategory, isCategoryIndexable } from "@/lib/content";
+import { fitDescription, pageMetadata } from "@/lib/seo";
 
 /** Rendu entièrement statique : un slug inconnu renvoie un vrai code 404. */
 export const ensureStatic = "navigation";
@@ -17,13 +17,17 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/guides/categorie/[category]">): Promise<Metadata> {
   const category = getCategory((await params).category);
   if (!category) return { title: "Catégorie introuvable" };
-  const guides = getGuidesByCategory(category.slug);
   return pageMetadata({
     title: `${category.name} : guides pour voyager au Maroc`,
-    description: category.description,
+    description:
+      category.seoDescription ??
+      fitDescription(category.description, [
+        `Tous nos guides « ${category.name} » pour préparer votre voyage au Maroc.`,
+        "Tous nos guides pour préparer votre voyage au Maroc.",
+      ]),
     path: `/guides/categorie/${category.slug}`,
-    // Une catégorie vide n'apporte rien aux moteurs de recherche.
-    noindex: guides.length === 0,
+    // Tant qu'elle ne contient que des exemples (noindex), la catégorie n'est pas indexée.
+    noindex: !isCategoryIndexable(category.slug),
   });
 }
 

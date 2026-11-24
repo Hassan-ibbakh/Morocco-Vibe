@@ -1,4 +1,5 @@
 import type { Guide } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 const guide: Guide = {
   slug: "fes-premiere-visite-medina",
@@ -11,7 +12,8 @@ const guide: Guide = {
   destination: "fes",
   publishedAt: "2026-11-08",
   cover: {
-    alt: "Vue plongeante sur les toits serrés de la médina de Fès",
+    ...photo("fes-premiere-visite-medina"),
+    alt: "Peaux teintes en jaune séchant sur les toits de la tannerie Chouara à Fès",
   },
   sections: [
     {

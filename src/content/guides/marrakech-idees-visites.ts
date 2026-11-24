@@ -1,4 +1,5 @@
 import type { Guide } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 const guide: Guide = {
   slug: "marrakech-idees-visites",
@@ -11,7 +12,8 @@ const guide: Guide = {
   destination: "marrakech",
   publishedAt: "2026-10-15",
   cover: {
-    alt: "Jardin luxuriant avec bassin et façade colorée à Marrakech",
+    ...photo("marrakech-idees-visites"),
+    alt: "Bassin, plantes et pots colorés du jardin Majorelle à Marrakech",
   },
   sections: [
     {

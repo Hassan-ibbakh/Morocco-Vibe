@@ -45,6 +45,8 @@ export type Category = {
   slug: string;
   name: string;
   description: string;
+  /** Meta description dédiée (110–160 caractères). Sinon : description complétée. */
+  seoDescription?: string;
 };
 
 export type Destination = {
@@ -52,8 +54,10 @@ export type Destination = {
   name: string;
   country: string;
   region: string;
-  /** Résumé court pour les cartes et la meta description. */
+  /** Résumé court pour les cartes (et base de la meta description). */
   summary: string;
+  /** Meta description dédiée (110–160 caractères). Sinon : résumé complété. */
+  seoDescription?: string;
   /** Paragraphes d'introduction de la page destination. */
   intro: string[];
   /** Points d'intérêt pour la mise en avant (sans chiffres ni horaires). */

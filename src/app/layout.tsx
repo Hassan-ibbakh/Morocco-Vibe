@@ -1,10 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist } from "next/font/google";
-import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { googleSiteVerification, isIndexable, siteConfig } from "@/config/site";
-import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,9 +29,14 @@ export const metadata: Metadata = {
     locale: siteConfig.locale,
   },
   twitter: { card: "summary_large_image" },
+  icons: { apple: "/logo.png" },
+  alternates: { types: { "application/rss+xml": [{ url: "/rss.xml", title: `${siteConfig.name} — guides` }] } },
   ...(googleSiteVerification ? { verification: { google: googleSiteVerification } } : {}),
+  // Production : grandes vignettes autorisées (Google Discover, résultats enrichis).
   // Prévisualisations Vercel : jamais indexées.
-  ...(isIndexable ? {} : { robots: { index: false, follow: false } }),
+  robots: isIndexable
+    ? { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } }
+    : { index: false, follow: false },
 };
 
 export const viewport: Viewport = {
@@ -55,7 +58,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <SiteFooter />
-        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       </body>
     </html>
   );

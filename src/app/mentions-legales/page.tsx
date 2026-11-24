@@ -5,7 +5,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Mentions légales",
-  description: `Mentions légales du site ${siteConfig.name} : éditeur, directeur de la publication et hébergeur.`,
+  description: `Mentions légales du site ${siteConfig.name} : éditeur, directeur de la publication, hébergeur, propriété intellectuelle et limites de responsabilité.`,
   path: "/mentions-legales",
 });
 

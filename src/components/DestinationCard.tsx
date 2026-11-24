@@ -21,8 +21,10 @@ export function DestinationCard({
         seed={destination.slug}
         palette={destination.palette}
         sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw"
-        className="aspect-[4/3] rounded-xl"
+        className="aspect-4/3 rounded-xl"
+        imgClassName="transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         showPlaceholderLabel={false}
+        transitionName={`destination-cover-${destination.slug}`}
       />
       <div className="flex flex-1 flex-col gap-2 px-2 pt-4 pb-2">
         <p className="text-xs font-semibold tracking-wider text-sea uppercase">

@@ -1,4 +1,5 @@
 import type { Guide } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 const guide: Guide = {
   slug: "usages-savoir-vivre-maroc",
@@ -10,7 +11,8 @@ const guide: Guide = {
   category: "pratique",
   publishedAt: "2026-09-30",
   cover: {
-    alt: "Service de thé à la menthe sur un plateau ciselé",
+    ...photo("usages-savoir-vivre-maroc"),
+    alt: "Verre de thé à la menthe posé sur une table à Marrakech",
   },
   sections: [
     {

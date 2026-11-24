@@ -1,4 +1,5 @@
 import type { Guide } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 const guide: Guide = {
   slug: "marrakech-se-reperer-medina",
@@ -11,7 +12,8 @@ const guide: Guide = {
   destination: "marrakech",
   publishedAt: "2026-10-28",
   cover: {
-    alt: "Passage couvert d'un souk avec des étals de lanternes",
+    ...photo("marrakech-se-reperer-medina"),
+    alt: "Mur ocre fleuri, bancs et mobylette à l'entrée d'un souk de Marrakech",
   },
   sections: [
     {

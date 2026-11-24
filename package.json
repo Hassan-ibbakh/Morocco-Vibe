@@ -1,5 +1,5 @@
 {
-  "name": "projet",
+  "name": "morocco-vibe",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -25,5 +25,8 @@
     "tailwindcss": "4.3.3",
     "typescript": "^5",
     "vitest": "^5.1.1"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }

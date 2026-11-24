@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ViewTransition } from "react";
 import { PlaceholderArt } from "@/components/PlaceholderArt";
 import type { ImageRef } from "@/lib/types";
 
@@ -11,7 +12,15 @@ type Props = {
   /** À activer uniquement pour l'image principale visible au chargement (LCP). */
   preload?: boolean;
   className?: string;
+  /** Classes de l'image elle-même (ex. zoom au survol d'une carte). */
+  imgClassName?: string;
   showPlaceholderLabel?: boolean;
+  /**
+   * Nom de transition partagé : la même image « se déplace » de la carte vers
+   * la page de détail (View Transitions API, ignoré si non supporté).
+   * Doit être unique sur la page.
+   */
+  transitionName?: string;
 };
 
 /**
@@ -26,9 +35,11 @@ export function CoverImage({
   sizes,
   preload,
   className = "aspect-[4/3]",
+  imgClassName = "",
   showPlaceholderLabel,
+  transitionName,
 }: Props) {
-  return (
+  const frame = (
     <div className={`relative overflow-hidden bg-sand ${className}`}>
       {image.src ? (
         <Image
@@ -37,11 +48,12 @@ export function CoverImage({
           fill
           sizes={sizes}
           preload={preload}
-          className="object-cover"
+          className={`object-cover ${imgClassName}`}
         />
       ) : (
         <PlaceholderArt seed={seed} palette={palette} showLabel={showPlaceholderLabel} />
       )}
     </div>
   );
+  return transitionName ? <ViewTransition name={transitionName}>{frame}</ViewTransition> : frame;
 }

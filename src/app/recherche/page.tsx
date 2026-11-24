@@ -8,7 +8,8 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Rechercher",
-  description: "Recherchez une destination ou un guide pour préparer votre voyage au Maroc.",
+  description:
+    "Recherchez une ville, une région ou un guide pratique pour préparer votre voyage au Maroc : médinas, côte atlantique, montagnes et désert.",
   path: "/recherche",
   // Les pages de résultats internes ne doivent pas être indexées.
   noindex: true,

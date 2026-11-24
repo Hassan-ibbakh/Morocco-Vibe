@@ -1,4 +1,5 @@
 import type { Guide } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 const guide: Guide = {
   slug: "checklist-avant-depart",
@@ -10,7 +11,8 @@ const guide: Guide = {
   category: "preparer",
   publishedAt: "2026-11-12",
   cover: {
-    alt: "Passeport, carnet et carte du Maroc posés sur une table",
+    ...photo("checklist-avant-depart"),
+    alt: "Le ksar d'Aït-Benhaddou et ses maisons en terre, entouré de palmiers",
   },
   sections: [
     {

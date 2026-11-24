@@ -4,8 +4,8 @@ import {
   getAllCategories,
   getAllDestinations,
   getAllGuides,
-  getGuidesByCategory,
   getTotalGuidePages,
+  isCategoryIndexable,
 } from "@/lib/content";
 import { absoluteUrl } from "@/lib/seo";
 
@@ -35,7 +35,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   const categories = getAllCategories()
-    .filter((c) => getGuidesByCategory(c.slug).length > 0)
+    .filter((c) => isCategoryIndexable(c.slug))
     .map((c) => ({
       url: absoluteUrl(`/guides/categorie/${c.slug}`),
       changeFrequency: "weekly" as const,
@@ -50,12 +50,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: absoluteUrl(`/destinations/${d.slug}`),
       changeFrequency: "monthly" as const,
       priority: 0.8,
+      // Sitemap d'images : aide Google Images à découvrir les photos.
+      ...(d.cover.src ? { images: [absoluteUrl(d.cover.src)] } : {}),
     })),
     ...guides.map((g) => ({
       url: absoluteUrl(`/guides/${g.slug}`),
       lastModified: g.updatedAt ?? g.publishedAt,
       changeFrequency: "monthly" as const,
       priority: 0.7,
+      ...(g.cover.src ? { images: [absoluteUrl(g.cover.src)] } : {}),
     })),
   ];
 }

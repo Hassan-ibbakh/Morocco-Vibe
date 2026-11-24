@@ -1,4 +1,5 @@
 import type { Guide } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 const guide: Guide = {
   slug: "chefchaouen-que-faire",
@@ -11,7 +12,8 @@ const guide: Guide = {
   destination: "chefchaouen",
   publishedAt: "2026-10-25",
   cover: {
-    alt: "Escaliers peints en bleu et pots de fleurs dans une ruelle de Chefchaouen",
+    ...photo("chefchaouen-que-faire"),
+    alt: "Escalier et murs peints en bleu dans une ruelle de Chefchaouen",
   },
   sections: [
     {

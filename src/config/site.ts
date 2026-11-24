@@ -64,4 +64,5 @@ export const legalNav = [
   { href: "/confidentialite", label: "Confidentialité" },
   { href: "/cookies", label: "Cookies" },
   { href: "/transparence", label: "Publicité et affiliation" },
+  { href: "/credits", label: "Crédits photos" },
 ] as const;

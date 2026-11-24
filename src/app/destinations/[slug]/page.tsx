@@ -8,8 +8,9 @@ import { DestinationCard } from "@/components/DestinationCard";
 import { GuideGrid } from "@/components/GuideCard";
 import { JsonLd } from "@/components/JsonLd";
 import { Container } from "@/components/PageHeader";
+import { PhotoCredit } from "@/components/PhotoCredit";
 import { getAllDestinations, getDestination, getGuidesByDestination } from "@/lib/content";
-import { absoluteUrl, pageMetadata } from "@/lib/seo";
+import { absoluteUrl, fitDescription, pageMetadata } from "@/lib/seo";
 
 /** Rendu entièrement statique : un slug inconnu renvoie un vrai code 404. */
 export const ensureStatic = "navigation";
@@ -24,7 +25,13 @@ export async function generateMetadata({ params }: PageProps<"/destinations/[slu
   if (!destination) return { title: "Destination introuvable" };
   return pageMetadata({
     title: `${destination.name} : guide pratique et idées de visites`,
-    description: destination.summary,
+    description:
+      destination.seoDescription ??
+      fitDescription(destination.summary, [
+        `Incontournables, conseils pratiques et guides pour préparer votre séjour à ${destination.name}.`,
+        "Incontournables, conseils pratiques et guides pour préparer votre séjour.",
+        "Conseils pratiques et guides pour préparer votre séjour.",
+      ]),
     path: `/destinations/${destination.slug}`,
     noindex: destination.demo,
   });
@@ -83,11 +90,12 @@ export default async function DestinationPage({ params }: PageProps<"/destinatio
             palette={destination.palette}
             sizes="(min-width: 1024px) 600px, 100vw"
             preload
-            className="aspect-[4/3] rounded-3xl"
+            className="aspect-4/3 rounded-3xl"
+            transitionName={`destination-cover-${destination.slug}`}
           />
-          {destination.cover.credit && (
-            <figcaption className="mt-2 text-xs text-ink-soft">{destination.cover.credit}</figcaption>
-          )}
+          <figcaption className="mt-2">
+            <PhotoCredit image={destination.cover} />
+          </figcaption>
         </figure>
       </Container>
 
@@ -151,7 +159,7 @@ export default async function DestinationPage({ params }: PageProps<"/destinatio
             </h2>
             <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {others.map((d) => (
-                <li key={d.slug} className="flex">
+                <li key={d.slug} className="reveal flex">
                   <DestinationCard destination={d} />
                 </li>
               ))}

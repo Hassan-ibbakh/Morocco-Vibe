@@ -3,7 +3,10 @@
  * slugs uniques et valides, références existantes, ancres uniques,
  * dates valides et liens internes qui mènent à une page réelle.
  */
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { getPhotoBySrc, photos } from "@/content/photos";
 import { legalNav, mainNav } from "@/config/site";
 import {
   RESERVED_GUIDE_SLUGS,
@@ -12,6 +15,7 @@ import {
   getAllGuides,
   getTotalGuidePages,
 } from "@/lib/content";
+import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from "@/lib/seo";
 import type { Block } from "@/lib/types";
 
 const guides = getAllGuides();
@@ -83,17 +87,46 @@ describe("contenu", () => {
     }
   });
 
-  it("les métadonnées ont une longueur raisonnable pour les moteurs de recherche", () => {
+  it("les métadonnées tiennent dans les limites affichées par Google", () => {
     for (const g of guides) {
-      expect(g.title.length, g.slug).toBeLessThanOrEqual(80);
-      expect(g.description.length, g.slug).toBeGreaterThanOrEqual(70);
-      expect(g.description.length, g.slug).toBeLessThanOrEqual(170);
+      // Au-delà de 60 caractères, le titre est tronqué dans les résultats.
+      expect(g.title.length, `${g.slug} : titre trop long`).toBeLessThanOrEqual(MAX_TITLE_LENGTH);
+      expect(g.description.length, `${g.slug} : description trop courte`).toBeGreaterThanOrEqual(110);
+      expect(g.description.length, `${g.slug} : description trop longue`).toBeLessThanOrEqual(
+        MAX_DESCRIPTION_LENGTH,
+      );
     }
+    for (const item of [...destinations, ...categories]) {
+      if (item.seoDescription) {
+        expect(item.seoDescription.length, item.slug).toBeGreaterThanOrEqual(110);
+        expect(item.seoDescription.length, item.slug).toBeLessThanOrEqual(MAX_DESCRIPTION_LENGTH);
+      }
+    }
+  });
+
+  it("les titres de guides sont uniques", () => {
+    expect(unique(guides.map((g) => g.title.toLowerCase()))).toBe(true);
+    expect(unique(guides.map((g) => g.description.toLowerCase()))).toBe(true);
   });
 
   it("chaque image a un texte alternatif", () => {
     for (const item of [...guides, ...destinations]) {
       expect(item.cover.alt.trim().length, item.slug).toBeGreaterThan(5);
+    }
+  });
+
+  it("chaque photo existe sur le disque et possède un crédit complet", () => {
+    for (const item of [...guides, ...destinations]) {
+      const src = item.cover.src;
+      if (!src) continue;
+      expect(existsSync(join(process.cwd(), "public", src)), `${item.slug} : ${src} introuvable`).toBe(true);
+      const credit = getPhotoBySrc(src);
+      expect(credit, `${item.slug} : crédit manquant dans photos.ts`).toBeDefined();
+      expect(credit?.author.trim(), item.slug).toBeTruthy();
+      expect(credit?.licenseUrl, item.slug).toMatch(/^https:\/\//);
+    }
+    for (const p of Object.values(photos)) {
+      expect(existsSync(join(process.cwd(), "public", p.src)), p.src).toBe(true);
     }
   });
 

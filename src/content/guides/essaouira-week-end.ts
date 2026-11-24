@@ -1,8 +1,9 @@
 import type { Guide } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 const guide: Guide = {
   slug: "essaouira-week-end",
-  title: "Un week-end à Essaouira : exemple de programme sur deux jours",
+  title: "Un week-end à Essaouira : programme sur deux jours",
   description:
     "Remparts, médina, port et plage : un exemple de programme de deux jours à Essaouira, à adapter selon votre rythme et la météo.",
   intro:
@@ -11,7 +12,8 @@ const guide: Guide = {
   destination: "essaouira",
   publishedAt: "2026-11-05",
   cover: {
-    alt: "Bateaux de pêche bleus amarrés dans le port d'Essaouira",
+    ...photo("essaouira-week-end"),
+    alt: "Remparts et médina d'Essaouira face aux rochers de l'Atlantique",
   },
   sections: [
     {

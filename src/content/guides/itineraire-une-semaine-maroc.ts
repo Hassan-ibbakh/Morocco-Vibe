@@ -1,4 +1,5 @@
 import type { Guide } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 const guide: Guide = {
   slug: "itineraire-une-semaine-maroc",
@@ -10,7 +11,8 @@ const guide: Guide = {
   category: "itineraires",
   publishedAt: "2026-11-02",
   cover: {
-    alt: "Route traversant un paysage de montagnes arides au Maroc",
+    ...photo("itineraire-une-semaine-maroc"),
+    alt: "Montagnes arides et vallée verdoyante au col du Tizi n'Tichka, dans le Haut Atlas",
   },
   sections: [
     {

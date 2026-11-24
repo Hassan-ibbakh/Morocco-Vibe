@@ -35,6 +35,11 @@ export function getGuidesByCategory(slug: string): Guide[] {
   return sortedGuides.filter((g) => g.category === slug);
 }
 
+/** Une catégorie n'est indexée que si elle contient au moins un guide publié (non démo). */
+export function isCategoryIndexable(slug: string): boolean {
+  return getGuidesByCategory(slug).some((g) => !g.demo);
+}
+
 export function getGuidesByDestination(slug: string): Guide[] {
   return sortedGuides.filter((g) => g.destination === slug);
 }

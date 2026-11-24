@@ -1,4 +1,5 @@
 import type { Destination } from "@/lib/types";
+import { photo } from "@/content/photos";
 
 /**
  * CONTENU D'EXEMPLE — à relire, compléter et vérifier avant publication.
@@ -40,7 +41,8 @@ export const destinations: Destination[] = [
       },
     ],
     cover: {
-      alt: "Ruelle ombragée d'un souk de la médina de Marrakech",
+      ...photo("marrakech"),
+      alt: "Allée couverte d'un souk de Marrakech, sous la lumière filtrée des treillages",
     },
     palette: ["#F4A259", "#BC4B51", "#5B8E7D"],
     featured: true,
@@ -78,7 +80,8 @@ export const destinations: Destination[] = [
       },
     ],
     cover: {
-      alt: "Porte monumentale ornée de zellige bleu à l'entrée de la médina de Fès",
+      ...photo("fes"),
+      alt: "Bab Bou Jeloud, porte monumentale ornée de zellige bleu à l'entrée de la médina de Fès",
     },
     palette: ["#E9C46A", "#2A6F97", "#1D3557"],
     featured: true,
@@ -116,7 +119,8 @@ export const destinations: Destination[] = [
       },
     ],
     cover: {
-      alt: "Ruelle aux murs bleus et aux marches peintes dans la médina de Chefchaouen",
+      ...photo("chefchaouen"),
+      alt: "Ruelle pavée bordée de maisons peintes en bleu à Chefchaouen",
     },
     palette: ["#A8DADC", "#457B9D", "#1D3557"],
     featured: true,
@@ -154,7 +158,8 @@ export const destinations: Destination[] = [
       },
     ],
     cover: {
-      alt: "Remparts d'Essaouira face à l'océan Atlantique, avec des bateaux de pêche bleus",
+      ...photo("essaouira"),
+      alt: "Barques de pêche bleues serrées dans le port d'Essaouira",
     },
     palette: ["#F2C14E", "#2C6E7A", "#16444C"],
     demo: true,
@@ -191,7 +196,8 @@ export const destinations: Destination[] = [
       },
     ],
     cover: {
-      alt: "Dunes de sable orangé de l'erg Chebbi au coucher du soleil",
+      ...photo("merzouga"),
+      alt: "Crête de dune orangée de l'erg Chebbi au coucher du soleil",
     },
     palette: ["#F4A259", "#E07A3A", "#8E3416"],
     featured: true,

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { TextPage, ToFill } from "@/components/TextPage";
+import { contactFormConfig } from "@/config/contact";
 import { siteConfig } from "@/config/site";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "Politique de confidentialité",
-  description: `Quelles données personnelles ${siteConfig.name} collecte-t-il, pourquoi et quels sont vos droits ?`,
+  description: `Politique de confidentialité de ${siteConfig.name} : données personnelles collectées, finalités, durée de conservation et exercice de vos droits.`,
   path: "/confidentialite",
 });
 
@@ -33,8 +34,8 @@ export default function PrivacyPage() {
       <h2>Données collectées aujourd&apos;hui</h2>
       <ul>
         <li>
-          <strong>Aucun compte, aucun formulaire, aucun outil d&apos;analyse ni de publicité</strong> n&apos;est
-          actif sur le site à ce jour.
+          <strong>Aucun compte, aucun outil d&apos;analyse ni de publicité</strong> n&apos;est actif sur le
+          site à ce jour.
         </li>
         <li>
           <strong>Journaux techniques de l&apos;hébergeur :</strong> comme tout site web, notre hébergeur
@@ -42,8 +43,11 @@ export default function PrivacyPage() {
           fonctionnement et la sécurité du service.
         </li>
         <li>
-          <strong>E-mails :</strong> si vous nous écrivez, nous utilisons votre adresse et votre message
-          uniquement pour vous répondre.
+          <strong>E-mails et formulaire de contact :</strong> si vous nous écrivez, nous utilisons votre
+          nom, votre adresse et votre message uniquement pour vous répondre. Le site ne les enregistre pas :
+          {contactFormConfig.enabled
+            ? " les messages du formulaire nous sont transmis par e-mail via le prestataire d'envoi Resend."
+            : " ils arrivent directement dans notre messagerie."}
         </li>
       </ul>
 
