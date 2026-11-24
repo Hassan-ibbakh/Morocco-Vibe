@@ -41,7 +41,12 @@ npm run dev        # http://localhost:3000
 | `/credits`                     | Auteurs et licences des photos                              |
 | `/plan-du-site`                | Toutes les pages du site, classées par rubrique             |
 | `/rss.xml`                     | Flux RSS des guides publiés                                 |
+| `/newsletter/merci`            | Confirmation d'inscription à la newsletter (`noindex`)      |
+| `/en`, `/en/guides`, `/en/guides/[slug]` | Version anglaise : accueil, guides par catégorie, articles |
+| `/en/about`, `/en/contact`, `/en/legal-notice`, `/en/privacy`, `/en/credits` | Pages anglaises (À propos, contact, légal, crédits) |
 | `/keystatic`                   | Tableau de bord d'administration (non indexé)               |
+
+**Carte interactive** (`/destinations`) : les destinations apparaissent sur une carte du Maroc dessinée en SVG (contours Natural Earth, domaine public), sans service externe. Au survol ou au focus d'un repère, une fiche s'affiche (photo, résumé, nombre de guides) ; sur mobile, un appui ouvre la page. La position de chaque destination se règle dans le tableau de bord (latitude et longitude).
 
 Chaque page a sa propre adresse, ses propres titre et description, et peut être partagée ou indexée séparément. Dans l'en-tête, les rubriques **Destinations** et **Guides** ouvrent un menu déroulant vers leurs sous-pages ; sur mobile, ces sous-pages sont listées dans le menu.
 
@@ -56,7 +61,8 @@ content/
 ├── settings.yaml        # réglages du site (nom, slogan, textes de l'accueil…)
 ├── categories/*.yaml    # catégories de guides
 ├── destinations/*.yaml  # fiches destinations
-└── guides/*.mdoc        # articles : en-tête (titre, description…) + texte
+├── guides/*.mdoc        # articles en français : en-tête (titre, description…) + texte
+└── en/guides/*.mdoc     # articles en anglais (chacun relié à son article français)
 public/images/
 ├── guides/<slug>/       # photos des articles
 └── destinations/<slug>/ # photos des destinations
@@ -96,6 +102,17 @@ Tant que ces variables ne sont pas définies en production, `/keystatic` s'affic
 3. **Relire** : cochez « Brouillon » pendant l'écriture. Un brouillon est visible en local et sur les prévisualisations Vercel, mais **jamais sur le site en ligne**.
 4. **Publier** : décochez « Brouillon » et sauvegardez. L'article apparaît sur le site, dans le sitemap et dans le flux RSS.
 
+**Questions fréquentes :** le champ « Questions fréquentes » d'un article ajoute en fin de page des questions-réponses dépliables, et les données structurées `FAQPage` correspondantes. Google n'affiche plus ces questions directement dans ses résultats pour la plupart des sites, mais elles restent utiles aux lecteurs et aux moteurs de recherche.
+
+### Version anglaise
+
+Le site existe en français (adresses sans préfixe) et en anglais (sous `/en`). Chaque langue a son propre layout, avec le bon attribut `lang`, son en-tête, son pied de page et un sélecteur de langue.
+
+- **Traduire un article** : dans le tableau de bord, ouvrez **Articles (anglais) → Ajouter**, choisissez l'article français dans « Traduction de l'article français », puis écrivez le texte anglais. Sans photo, l'article reprend celle de la version française.
+- Les deux versions sont reliées automatiquement : lien « Read this guide in English / Lire ce guide en français », balises `hreflang` pour Google et sitemap.
+- Les catégories ont un nom et une description en anglais (champs « Nom en anglais »). En anglais, il n'y a pas de pages de catégories ni de fiches destinations : les guides sont regroupés par catégorie sur `/en/guides`.
+- `npm test` vérifie que chaque article anglais traduit un article français existant et que ses liens internes pointent vers des pages anglaises.
+
 La case « Exemple à vérifier » (`demo`) affiche un bandeau « Exemple » et exclut la page de Google : elle sert aux contenus à relire avant publication.
 
 **Règles vérifiées par `npm test`** (et par l'intégration continue à chaque push) : titre de guide de 60 caractères maximum, description de 110 à 160 caractères, titres et descriptions uniques, catégories et destinations existantes, liens internes valides, photos présentes. Une catégorie n'est indexée qu'à partir de son premier article publié.
@@ -114,8 +131,6 @@ La case « Exemple à vérifier » (`demo`) affiche un bandeau « Exemple » et 
 
 Les effets à la souris ne s'activent pas sur écran tactile. Tout est désactivé si l'utilisateur a demandé à réduire les animations, et les navigateurs qui ne gèrent pas un effet affichent simplement le contenu.
 
-> Si vous souhaitez plus tard publier sans toucher au code, un CMS « Git » gratuit (Decap CMS, Keystatic, TinaCMS…) peut éditer ces fichiers. Comparez leurs limites et leurs offres avant de choisir.
-
 ## Configuration
 
 Le nom, le slogan, la description et les textes de l'accueil se modifient dans le tableau de bord (**Réglages du site**) ; la navigation se trouve dans `src/config/site.ts`. Les variables d'environnement sont listées dans [`.env.example`](.env.example) :
@@ -130,26 +145,39 @@ Le nom, le slogan, la description et les textes de l'accueil se modifient dans l
 | `RESEND_API_KEY` 🔒          | Active le formulaire de contact (clé [Resend](https://resend.com), offre gratuite) |
 | `CONTACT_TO_EMAIL` 🔒        | Adresse qui reçoit les messages du formulaire                    |
 | `CONTACT_FROM_EMAIL` 🔒      | Expéditeur sur un domaine vérifié chez Resend (facultatif au début) |
+| `BREVO_API_KEY` 🔒, `BREVO_LIST_ID`, `BREVO_DOI_TEMPLATE_ID` | Active la newsletter (voir ci-dessous) |
 | `KEYSTATIC_GITHUB_CLIENT_ID` 🔒, `KEYSTATIC_GITHUB_CLIENT_SECRET` 🔒, `KEYSTATIC_SECRET` 🔒, `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG` | Connexion au tableau de bord en production (voir « Mise en service de la connexion GitHub ») |
 
 🔒 = variable privée, à définir uniquement dans Vercel, jamais dans le code ni dans un fichier commité.
 
 **Formulaire de contact :** il n'apparaît que si `RESEND_API_KEY` et `CONTACT_TO_EMAIL` sont définies. Sinon, la page Contact affiche l'adresse e-mail publique. Les messages sont validés côté serveur et protégés contre les robots par un champ piège ; ils sont envoyés par e-mail et jamais stockés par le site. La page étant générée au build, **redéployez après avoir ajouté ces variables**. Au-delà de quelques messages par jour, ajoutez une limitation de débit (par exemple le pare-feu de Vercel).
 
+**Newsletter (Brevo) :** le formulaire d'inscription apparaît dans le pied de page (en français et en anglais) dès que les trois variables Brevo sont définies. L'inscription se fait en **double confirmation** : l'abonné reçoit un e-mail et doit cliquer sur un lien, puis arrive sur `/newsletter/merci` (ou `/en/newsletter/thanks`). Mise en service :
+
+1. Créez un compte gratuit sur [brevo.com](https://www.brevo.com) et validez l'adresse ou le domaine d'expédition.
+2. **Contacts → Listes** : créez une liste et notez son numéro (`BREVO_LIST_ID`).
+3. **Modèles d'e-mail** : créez le modèle de confirmation « double opt-in » (il doit contenir le lien de confirmation prévu par Brevo) et notez son numéro (`BREVO_DOI_TEMPLATE_ID`).
+4. **SMTP & API → Clés API** : créez une clé (`BREVO_API_KEY`).
+5. Ajoutez les trois variables dans Vercel, puis redéployez.
+
+Les envois de la newsletter se font depuis Brevo (campagnes). La page Confidentialité mentionne Brevo automatiquement dès que la newsletter est active.
+
 ## Sécurité et qualité
 
 - En-têtes HTTP : `Content-Security-Policy` (aucune ressource tierce autorisée), `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`, `nosniff`. Si vous ajoutez un service externe (mesure d'audience, publicité, vidéos), élargissez la CSP dans `next.config.ts`.
 - Intégration continue : `.github/workflows/ci.yml` lance le lint, les tests et le build à chaque push sur `main` et à chaque pull request.
-- Pages d'erreur : `not-found.tsx` (404), `error.tsx` (erreur d'une page) et `global-error.tsx` (erreur du layout racine).
+- Pages d'erreur : `not-found.tsx` dans chaque langue (404), `global-not-found.tsx` (adresse inconnue, page bilingue), `error.tsx` (erreur d'une page) et `global-error.tsx` (erreur du layout racine).
+- Organisation des routes : `src/app/(fr)` (français), `src/app/(en)/en` (anglais) et `src/app/(admin)` (tableau de bord), chacun avec son layout racine.
 - Partage d'article sans script tiers : partage natif du téléphone, WhatsApp, Facebook, X, e-mail et copie du lien.
 - Flux RSS des guides publiés : `/rss.xml`.
 
 ## SEO
 
 - Titres, descriptions et URL canoniques propres à chaque page (`src/lib/seo.ts`).
-- Images Open Graph générées au build (`opengraph-image.tsx`).
+- Images de partage générées au build, à des adresses fixes : `/share-image.png`, `/en/share-image.png` et `/guides/<slug>/share-image.png` pour un article sans photo.
+- Versions française et anglaise reliées par des balises `hreflang` (pages et sitemap).
 - `sitemap.xml` et `robots.txt` générés automatiquement. Les déploiements de prévisualisation Vercel sont exclus de l'indexation.
-- Données structurées Schema.org : `Organization`, `WebSite`, `BreadcrumbList`, `Article`, `TouristDestination`, toutes cohérentes avec le contenu visible.
+- Données structurées Schema.org : `Organization`, `WebSite`, `BreadcrumbList`, `Article`, `FAQPage`, `TouristDestination`, toutes cohérentes avec le contenu visible.
 - Un seul H1 par page, un fil d'Ariane, des liens internes et des textes alternatifs obligatoires (vérifiés par les tests).
 
 **Google Search Console :** ajoutez votre domaine, choisissez la vérification par balise HTML, copiez la valeur `content` dans `GOOGLE_SITE_VERIFICATION`, redéployez, puis soumettez `https://votre-domaine/sitemap.xml`.

@@ -1,16 +1,18 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
+import { getDictionary, type Lang } from "@/i18n";
 import { breadcrumbJsonLd, type Crumb } from "@/lib/seo";
 
 /**
  * Fil d'Ariane visible + données structurées BreadcrumbList correspondantes.
  * Le premier élément (Accueil) est ajouté automatiquement.
  */
-export function Breadcrumbs({ items }: { items: Crumb[] }) {
-  const crumbs: Crumb[] = [{ name: "Accueil", href: "/" }, ...items];
+export function Breadcrumbs({ items, lang = "fr" }: { items: Crumb[]; lang?: Lang }) {
+  const t = getDictionary(lang);
+  const crumbs: Crumb[] = [{ name: t.home, href: t.homePath }, ...items];
   return (
     <>
-      <nav aria-label="Fil d'Ariane" className="text-sm text-ink-soft">
+      <nav aria-label={t.breadcrumb} className="text-sm text-ink-soft">
         <ol className="flex flex-wrap items-center gap-x-2 gap-y-1">
           {crumbs.map((crumb, i) => {
             const isLast = i === crumbs.length - 1;

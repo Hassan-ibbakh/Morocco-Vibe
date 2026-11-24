@@ -19,14 +19,16 @@ export const isActive = (pathname: string, href: string) =>
   pathname === href || pathname.startsWith(`${href}/`);
 
 /** Navigation principale (ordinateur) : liens et menus déroulants accessibles. */
-export function NavLinks({ items }: { items: readonly NavItem[] }) {
+export type SubmenuLabels = { open: string; close: string };
+
+export function NavLinks({ items, labels }: { items: readonly NavItem[]; labels: SubmenuLabels }) {
   const pathname = usePathname();
   return (
     <ul className="hidden items-center gap-1 md:flex">
       {items.map((item) => (
         <li key={item.href} className="relative">
           {item.children?.length ? (
-            <DropdownItem item={item} active={isActive(pathname, item.href)} />
+            <DropdownItem item={item} active={isActive(pathname, item.href)} labels={labels} />
           ) : (
             <TopLink item={item} active={isActive(pathname, item.href)} />
           )}
@@ -56,7 +58,7 @@ function TopLink({ item, active, onClick }: { item: NavItem; active: boolean; on
  * Lien + bouton d'ouverture du sous-menu. Le menu s'ouvre au survol, au clic
  * sur la flèche ou au clavier ; Échap le ferme et rend le focus au bouton.
  */
-function DropdownItem({ item, active }: { item: NavItem; active: boolean }) {
+function DropdownItem({ item, active, labels }: { item: NavItem; active: boolean; labels: SubmenuLabels }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -106,7 +108,7 @@ function DropdownItem({ item, active }: { item: NavItem; active: boolean }) {
         className="-ml-2 inline-flex h-8 w-7 items-center justify-center rounded-full text-ink-soft hover:text-terracotta"
       >
         <span className="sr-only">
-          {open ? "Fermer" : "Ouvrir"} le sous-menu {item.label}
+          {open ? labels.close : labels.open} {item.label}
         </span>
         <svg
           viewBox="0 0 20 20"
@@ -155,7 +157,7 @@ function DropdownItem({ item, active }: { item: NavItem; active: boolean }) {
             onClick={close}
             className="group flex items-center justify-between border-t border-sand-deep bg-sand/60 px-5 py-3 text-sm font-semibold text-sea hover:text-terracotta"
           >
-            {item.allLabel ?? `Tout voir : ${item.label}`}
+            {item.allLabel ?? item.label}
             <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
               →
             </span>

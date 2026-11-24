@@ -51,7 +51,7 @@ function splitFrontmatter(source: string, file: string): { data: Data; body: str
 export function contentVersion(): string {
   let count = 0;
   let latest = 0;
-  for (const folder of ["guides", "destinations", "categories"]) {
+  for (const folder of ["guides", "en/guides", "destinations", "categories"]) {
     const dir = join(CONTENT_DIR, folder);
     if (!existsSync(dir)) continue;
     for (const file of readdirSync(dir)) {
@@ -211,6 +211,8 @@ export function loadCategories(): Category[] {
           name: str(data, "name", file),
           description: str(data, "description", file),
           seoDescription: optStr(data, "seoDescription"),
+          nameEn: optStr(data, "nameEn"),
+          descriptionEn: optStr(data, "descriptionEn"),
         },
         order: num(data, "order", 100),
       };
@@ -230,6 +232,7 @@ export function loadDestinations(): Destination[] {
         destination: {
           slug,
           name,
+          nameEn: optStr(data, "nameEn"),
           country: optStr(data, "country") ?? "Maroc",
           region: str(data, "region", file),
           summary: str(data, "summary", file),
@@ -240,6 +243,10 @@ export function loadDestinations(): Destination[] {
             .map((p) => ({ label: optStr(p, "label") ?? "", text: optStr(p, "text") ?? "" }))
             .filter((p) => p.label && p.text),
           cover: cover(data, name),
+          coordinates:
+            typeof data.lat === "number" && typeof data.lon === "number"
+              ? { lat: data.lat, lon: data.lon }
+              : undefined,
           featured: bool(data, "featured"),
           demo: bool(data, "demo"),
         } satisfies Destination,
@@ -250,10 +257,13 @@ export function loadDestinations(): Destination[] {
     .map(({ destination }) => destination);
 }
 
-export function loadGuides(): Guide[] {
-  return listSlugs("guides", ".mdoc").map((slug) => {
-    const file = `content/guides/${slug}.mdoc`;
-    const { data, body } = splitFrontmatter(readText(join(CONTENT_DIR, "guides", `${slug}.mdoc`)), file);
+/** Articles d'une langue : content/guides (français) ou content/en/guides (anglais). */
+export function loadGuides(lang: "fr" | "en" = "fr"): Guide[] {
+  const folder = lang === "en" ? "en/guides" : "guides";
+  return listSlugs(folder, ".mdoc").map((slug) => {
+    const file = `content/${folder}/${slug}.mdoc`;
+    const { data, body } = splitFrontmatter(readText(join(CONTENT_DIR, folder, `${slug}.mdoc`)), file);
+    const faq = Array.isArray(data.faq) ? (data.faq as Data[]) : [];
     const title = str(data, "title", file);
     return {
       slug,
@@ -268,9 +278,14 @@ export function loadGuides(): Guide[] {
       cover: cover(data, title),
       sections: markdocToSections(body, file),
       keyTips: strings(data.keyTips),
+      faq: faq
+        .map((f) => ({ question: optStr(f, "question") ?? "", answer: optStr(f, "answer") ?? "" }))
+        .filter((f) => f.question && f.answer),
       featured: bool(data, "featured"),
       demo: bool(data, "demo"),
       draft: bool(data, "draft"),
+      lang,
+      translationOf: lang === "en" ? optStr(data, "translationOf") : undefined,
     } satisfies Guide;
   });
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { getDictionary, type Lang } from "@/i18n";
 
 /**
  * Rend la mise en forme minimale autorisée dans le contenu :
@@ -9,7 +10,7 @@ import type { ReactNode } from "react";
  */
 const TOKEN = /\[([^\]]+)\]\(([^)\s]+)\)|\*\*([^*]+)\*\*/g;
 
-export function parseInline(text: string): ReactNode[] {
+export function parseInline(text: string, lang: Lang = "fr"): ReactNode[] {
   const nodes: ReactNode[] = [];
   let last = 0;
   let key = 0;
@@ -29,7 +30,7 @@ export function parseInline(text: string): ReactNode[] {
       nodes.push(
         <a key={key++} href={href} rel="noopener noreferrer" target="_blank">
           {label}
-          <span className="sr-only"> (nouvel onglet)</span>
+          <span className="sr-only">{getDictionary(lang).newTab}</span>
         </a>,
       );
     }
@@ -39,6 +40,6 @@ export function parseInline(text: string): ReactNode[] {
   return nodes;
 }
 
-export function RichText({ text }: { text: string }) {
-  return <>{parseInline(text)}</>;
+export function RichText({ text, lang = "fr" }: { text: string; lang?: Lang }) {
+  return <>{parseInline(text, lang)}</>;
 }

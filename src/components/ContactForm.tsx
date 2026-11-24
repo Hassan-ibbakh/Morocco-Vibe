@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import { sendContactMessage } from "@/app/contact/actions";
+import { sendContactMessage } from "@/actions/contact";
 import { CONTACT_SUBJECTS, emptyContactState, type ContactField } from "@/lib/contact";
 
 const input =

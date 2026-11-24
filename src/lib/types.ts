@@ -47,11 +47,18 @@ export type Category = {
   description: string;
   /** Meta description dédiée (110–160 caractères). Sinon : description complétée. */
   seoDescription?: string;
+  /** Nom et description en anglais (version /en du site). */
+  nameEn?: string;
+  descriptionEn?: string;
 };
 
 export type Destination = {
   slug: string;
   name: string;
+  /** Nom en anglais, s'il diffère (ex. « Fez »). */
+  nameEn?: string;
+  /** Position sur la carte des destinations (degrés décimaux). */
+  coordinates?: { lat: number; lon: number };
   country: string;
   region: string;
   /** Résumé court pour les cartes (et base de la meta description). */
@@ -72,6 +79,8 @@ export type Destination = {
   demo?: boolean;
 };
 
+export type FaqItem = { question: string; answer: string };
+
 export type Guide = {
   slug: string;
   title: string;
@@ -90,6 +99,12 @@ export type Guide = {
   sections: Section[];
   /** Encadré « L'essentiel » en fin d'article. */
   keyTips?: string[];
+  /** Questions fréquentes affichées en fin d'article (et en données structurées). */
+  faq?: FaqItem[];
+  /** Langue de l'article. */
+  lang: "fr" | "en";
+  /** Article anglais : slug de l'article français dont il est la traduction. */
+  translationOf?: string;
   featured?: boolean;
   demo?: boolean;
   /**

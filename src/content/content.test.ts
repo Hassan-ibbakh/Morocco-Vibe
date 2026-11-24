@@ -18,8 +18,10 @@ import { loadGuides, markdocToSections } from "@/lib/content-source";
 import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from "@/lib/seo";
 import type { Block } from "@/lib/types";
 
-// Tous les guides, brouillons compris : la structure est vérifiée dès l'écriture.
-const allGuides = loadGuides();
+// Tous les guides (français et anglais), brouillons compris : la structure est vérifiée dès l'écriture.
+const guidesFr = loadGuides("fr");
+const guidesEn = loadGuides("en");
+const allGuides = [...guidesFr, ...guidesEn];
 const guides = allGuides;
 // Guides publiés : seuls eux sont soumis aux règles SEO et peuvent être liés.
 const published = allGuides.filter((g) => !g.draft);
@@ -36,7 +38,14 @@ const knownPaths = new Set<string>([
   ...mainNav.map((n) => n.href),
   ...legalNav.map((n) => n.href),
   ...destinations.map((d) => `/destinations/${d.slug}`),
-  ...published.map((g) => `/guides/${g.slug}`),
+  ...published.map((g) => (g.lang === "en" ? `/en/guides/${g.slug}` : `/guides/${g.slug}`)),
+  "/en",
+  "/en/guides",
+  "/en/about",
+  "/en/contact",
+  "/en/legal-notice",
+  "/en/privacy",
+  "/en/credits",
   ...categories.map((c) => `/guides/categorie/${c.slug}`),
   ...Array.from({ length: getTotalGuidePages() - 1 }, (_, i) => `/guides/page/${i + 2}`),
 ]);
@@ -59,7 +68,7 @@ const unique = (values: string[]) => new Set(values).size === values.length;
 
 describe("contenu", () => {
   it("les slugs sont uniques et au bon format", () => {
-    for (const list of [guides, destinations, categories]) {
+    for (const list of [guidesFr, guidesEn, destinations, categories]) {
       const slugs = list.map((x) => x.slug);
       expect(unique(slugs)).toBe(true);
       for (const s of slugs) expect(s).toMatch(SLUG);
@@ -109,8 +118,11 @@ describe("contenu", () => {
   });
 
   it("les titres de guides sont uniques", () => {
-    expect(unique(published.map((g) => g.title.toLowerCase()))).toBe(true);
-    expect(unique(published.map((g) => g.description.toLowerCase()))).toBe(true);
+    for (const lang of ["fr", "en"]) {
+      const list = published.filter((g) => g.lang === lang);
+      expect(unique(list.map((g) => g.title.toLowerCase())), lang).toBe(true);
+      expect(unique(list.map((g) => g.description.toLowerCase())), lang).toBe(true);
+    }
   });
 
   it("chaque image a un texte alternatif", () => {
@@ -160,6 +172,37 @@ describe("contenu", () => {
       }
     }
     expect(broken).toEqual([]);
+  });
+});
+
+describe("version anglaise", () => {
+  it("chaque article anglais traduit un article français existant, une seule fois", () => {
+    const frSlugs = new Set(guidesFr.map((g) => g.slug));
+    for (const g of guidesEn) {
+      expect(g.translationOf, `${g.slug} : champ translationOf manquant`).toBeTruthy();
+      expect(frSlugs.has(g.translationOf!), `${g.slug} → ${g.translationOf} introuvable`).toBe(true);
+    }
+    expect(unique(guidesEn.map((g) => g.translationOf!))).toBe(true);
+  });
+
+  it("les articles anglais renvoient vers des pages anglaises", () => {
+    const wrong: string[] = [];
+    for (const g of guidesEn) {
+      for (const block of g.sections.flatMap((sec) => sec.blocks)) {
+        for (const text of texts(block)) {
+          for (const [, href] of text.matchAll(/\]\((\/[^)\s#]*)/g)) {
+            if (!href.startsWith("/en")) wrong.push(`${g.slug} → ${href}`);
+          }
+        }
+      }
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  it("les catégories utilisées en anglais ont un nom anglais", () => {
+    for (const g of guidesEn) {
+      expect(categories.find((c) => c.slug === g.category)?.nameEn, g.slug).toBeTruthy();
+    }
   });
 });
 

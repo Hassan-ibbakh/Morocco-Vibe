@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
+import { getDictionary, type Lang } from "@/i18n";
 
 /** Étoile à huit branches inspirée des motifs de zellige. */
 export function StarMark({ className = "h-8 w-8" }: { className?: string }) {
@@ -12,9 +13,14 @@ export function StarMark({ className = "h-8 w-8" }: { className?: string }) {
   );
 }
 
-export function Logo() {
+export function Logo({ lang = "fr" }: { lang?: Lang }) {
+  const t = getDictionary(lang);
   return (
-    <Link href="/" className="group inline-flex items-center gap-2.5" aria-label={`${siteConfig.name} — accueil`}>
+    <Link
+      href={t.homePath}
+      className="group inline-flex items-center gap-2.5"
+      aria-label={`${siteConfig.name} — ${t.nav.logo}`}
+    >
       <StarMark className="h-8 w-8 transition-transform duration-500 group-hover:rotate-45 motion-reduce:transition-none" />
       <span className="font-display text-xl font-semibold tracking-tight text-ink">{siteConfig.name}</span>
     </Link>

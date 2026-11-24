@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Container, PageHeader } from "@/components/PageHeader";
+import type { Lang } from "@/i18n";
 
 /** Gabarit des pages de texte (À propos, pages légales…). */
 export function TextPage({
@@ -9,16 +10,18 @@ export function TextPage({
   intro,
   eyebrow,
   children,
+  lang = "fr",
 }: {
   title: string;
   path: string;
   intro?: ReactNode;
   eyebrow?: string;
   children: ReactNode;
+  lang?: Lang;
 }) {
   return (
     <Container className="py-10 sm:py-14">
-      <Breadcrumbs items={[{ name: title, href: path }]} />
+      <Breadcrumbs items={[{ name: title, href: path }]} lang={lang} />
       <div className="mt-8">
         <PageHeader eyebrow={eyebrow} title={title} intro={intro} />
       </div>
@@ -28,10 +31,11 @@ export function TextPage({
 }
 
 /** Repère visuel pour une information légale à compléter. */
-export function ToFill({ children }: { children: ReactNode }) {
+export function ToFill({ children, lang = "fr" }: { children: ReactNode; lang?: Lang }) {
   return (
     <mark className="rounded bg-sun/40 px-1 text-ink">
-      [À compléter : {children}]
+      [{lang === "en" ? "To be completed: " : "À compléter : "}
+      {children}]
     </mark>
   );
 }

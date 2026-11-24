@@ -1,4 +1,5 @@
 import { contentVersion, loadCategories, loadDestinations, loadGuides } from "@/lib/content-source";
+import type { Lang } from "@/i18n";
 import type { Block, Category, Destination, Guide } from "@/lib/types";
 import { affiliatePartners } from "@/config/monetization";
 
@@ -18,7 +19,12 @@ const byDateDesc = (a: Guide, b: Guide) =>
 export const showDrafts =
   process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
 
-type Store = { categories: Category[]; destinations: Destination[]; guides: Guide[] };
+type Store = {
+  categories: Category[];
+  destinations: Destination[];
+  guides: Guide[];
+  guidesEn: Guide[];
+};
 let cache: { version: string; data: Store } | undefined;
 
 /**
@@ -29,15 +35,21 @@ let cache: { version: string; data: Store } | undefined;
 function store(): Store {
   const version = process.env.NODE_ENV === "development" ? contentVersion() : "build";
   if (!cache || cache.version !== version) {
+    const visible = (g: Guide) => showDrafts || !g.draft;
+    const fr = loadGuides("fr").filter(visible).sort(byDateDesc);
+    // Un article anglais sans photo reprend celle de l'article français qu'il traduit.
+    const en = loadGuides("en")
+      .filter(visible)
+      .map((g) => {
+        const source = g.cover.src ? undefined : fr.find((f) => f.slug === g.translationOf);
+        return source?.cover.src
+          ? { ...g, cover: { ...g.cover, src: source.cover.src, credit: source.cover.credit } }
+          : g;
+      })
+      .sort(byDateDesc);
     cache = {
       version,
-      data: {
-        categories: loadCategories(),
-        destinations: loadDestinations(),
-        guides: loadGuides()
-          .filter((g) => showDrafts || !g.draft)
-          .sort(byDateDesc),
-      },
+      data: { categories: loadCategories(), destinations: loadDestinations(), guides: fr, guidesEn: en },
     };
   }
   return cache.data;
@@ -45,18 +57,29 @@ function store(): Store {
 
 /* ---------- Guides ---------- */
 
-export function getAllGuides(): Guide[] {
-  return store().guides;
+const guidesOf = (lang: Lang) => (lang === "en" ? store().guidesEn : store().guides);
+
+export function getAllGuides(lang: Lang = "fr"): Guide[] {
+  return guidesOf(lang);
 }
 
-export function getGuide(slug: string): Guide | undefined {
-  return store().guides.find((g) => g.slug === slug);
+export function getGuide(slug: string, lang: Lang = "fr"): Guide | undefined {
+  return guidesOf(lang).find((g) => g.slug === slug);
 }
 
-export function getFeaturedGuides(limit = 3): Guide[] {
-  const featured = store().guides.filter((g) => g.featured);
-  const rest = store().guides.filter((g) => !g.featured);
+export function getFeaturedGuides(limit = 3, lang: Lang = "fr"): Guide[] {
+  const featured = guidesOf(lang).filter((g) => g.featured);
+  const rest = guidesOf(lang).filter((g) => !g.featured);
   return [...featured, ...rest].slice(0, limit);
+}
+
+/**
+ * Version de l'article dans l'autre langue : l'article anglais pointe vers
+ * l'article français qu'il traduit (champ `translationOf`).
+ */
+export function getTranslation(guide: Guide): Guide | undefined {
+  if (guide.lang === "en") return guide.translationOf ? getGuide(guide.translationOf, "fr") : undefined;
+  return store().guidesEn.find((g) => g.translationOf === guide.slug);
 }
 
 export function getGuidesByCategory(slug: string): Guide[] {
@@ -86,7 +109,7 @@ export function getGuidesPage(page: number): Guide[] {
  * plus récents. Le score reste simple et prévisible pour l'équipe éditoriale.
  */
 export function getRelatedGuides(guide: Guide, limit = 3): Guide[] {
-  return store().guides
+  return guidesOf(guide.lang)
     .filter((g) => g.slug !== guide.slug)
     .map((g) => ({
       g,

@@ -1,11 +1,21 @@
 import { getPhotoBySrc } from "@/content/photos";
+import { getDictionary, type Lang } from "@/i18n";
 import type { ImageRef } from "@/lib/types";
 
 /**
  * Crédit d'une photo : auteur, licence (liée) et source. Exigé par les
  * licences Creative Commons BY / BY-SA. Rien n'est affiché sans crédit connu.
  */
-export function PhotoCredit({ image, className = "" }: { image: ImageRef; className?: string }) {
+export function PhotoCredit({
+  image,
+  className = "",
+  lang = "fr",
+}: {
+  image: ImageRef;
+  className?: string;
+  lang?: Lang;
+}) {
+  const t = getDictionary(lang);
   const photo = getPhotoBySrc(image.src);
   if (!photo && !image.credit) return null;
   const link = "underline underline-offset-2 hover:text-ink";
@@ -13,11 +23,11 @@ export function PhotoCredit({ image, className = "" }: { image: ImageRef; classN
     <p className={`text-xs text-ink-soft ${className}`}>
       {photo ? (
         <>
-          Photo : {photo.author} —{" "}
+          {t.photo} {photo.author} —{" "}
           <a href={photo.licenseUrl} rel="license noopener noreferrer" target="_blank" className={link}>
             {photo.license}
           </a>
-          , via{" "}
+          , {t.via}{" "}
           <a href={photo.sourceUrl} rel="noopener noreferrer" target="_blank" className={link}>
             Wikimedia Commons
           </a>

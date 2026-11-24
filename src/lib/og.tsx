@@ -4,7 +4,16 @@ import { siteConfig } from "@/config/site";
 export const ogSize = { width: 1200, height: 630 };
 
 /** Visuel de partage commun (Open Graph / réseaux sociaux), généré au build. */
-export function renderOgImage({ title, eyebrow }: { title: string; eyebrow?: string }) {
+export function renderOgImage({
+  title,
+  eyebrow,
+  tagline = siteConfig.tagline,
+}: {
+  title: string;
+  eyebrow?: string;
+  /** Slogan affiché en bas du visuel (par défaut, celui du site en français). */
+  tagline?: string;
+}) {
   return new ImageResponse(
     (
       <div
@@ -51,7 +60,7 @@ export function renderOgImage({ title, eyebrow }: { title: string; eyebrow?: str
             {title}
           </div>
         </div>
-        <div style={{ fontSize: 26, color: "#4A5A5F" }}>{siteConfig.tagline}</div>
+        <div style={{ fontSize: 26, color: "#4A5A5F" }}>{tagline}</div>
       </div>
     ),
     ogSize,

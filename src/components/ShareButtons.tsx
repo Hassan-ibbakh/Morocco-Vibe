@@ -11,7 +11,17 @@ const noNativeShareOnServer = () => false;
  * pages de partage des réseaux, partage natif du téléphone (Web Share API)
  * lorsqu'il existe, et copie du lien.
  */
-export function ShareButtons({ url, title }: { url: string; title: string }) {
+export type ShareLabels = {
+  title: string;
+  native: string;
+  copy: string;
+  copied: string;
+  copyFailed: string;
+  email: string;
+  newTab: string;
+};
+
+export function ShareButtons({ url, title, labels }: { url: string; title: string; labels: ShareLabels }) {
   // Faux côté serveur, détecté dans le navigateur sans écart d'hydratation.
   const canShare = useSyncExternalStore(noopSubscribe, hasNativeShare, noNativeShareOnServer);
   const [status, setStatus] = useState("");
@@ -22,15 +32,15 @@ export function ShareButtons({ url, title }: { url: string; title: string }) {
     { label: "WhatsApp", href: `https://wa.me/?text=${t}%20${u}` },
     { label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${u}` },
     { label: "X", href: `https://x.com/intent/post?text=${t}&url=${u}` },
-    { label: "E-mail", href: `mailto:?subject=${t}&body=${u}` },
+    { label: labels.email, href: `mailto:?subject=${t}&body=${u}` },
   ];
 
   async function copy() {
     try {
       await navigator.clipboard.writeText(url);
-      setStatus("Lien copié dans le presse-papiers.");
+      setStatus(labels.copied);
     } catch {
-      setStatus("Copie impossible : sélectionnez l'adresse dans la barre du navigateur.");
+      setStatus(labels.copyFailed);
     }
   }
 
@@ -48,13 +58,13 @@ export function ShareButtons({ url, title }: { url: string; title: string }) {
   return (
     <section aria-labelledby="partage-titre" className="mt-12">
       <h2 id="partage-titre" className="font-display text-xl font-semibold text-ink">
-        Partager ce guide
+        {labels.title}
       </h2>
       <ul className="mt-4 flex flex-wrap gap-2">
         {canShare && (
           <li>
             <button type="button" onClick={nativeShare} className={btn}>
-              Partager…
+              {labels.native}
             </button>
           </li>
         )}
@@ -67,13 +77,13 @@ export function ShareButtons({ url, title }: { url: string; title: string }) {
               className={btn}
             >
               {l.label}
-              {!l.href.startsWith("mailto:") && <span className="sr-only"> (nouvel onglet)</span>}
+              {!l.href.startsWith("mailto:") && <span className="sr-only">{labels.newTab}</span>}
             </a>
           </li>
         ))}
         <li>
           <button type="button" onClick={copy} className={btn}>
-            Copier le lien
+            {labels.copy}
           </button>
         </li>
       </ul>

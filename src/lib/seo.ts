@@ -6,6 +6,14 @@ export function absoluteUrl(path = "/"): string {
 }
 
 type PageMetaInput = {
+  /** Langue de la page (français par défaut). */
+  lang?: "fr" | "en";
+  /**
+   * Versions de la page dans chaque langue, pour les balises hreflang.
+   * Ex. { fr: "/guides/x", en: "/en/guides/y" }. La version française sert
+   * aussi de version par défaut (x-default).
+   */
+  languages?: Partial<Record<"fr" | "en", string>>;
   title: string;
   description: string;
   /** Chemin canonique, ex. "/guides". */
@@ -19,7 +27,7 @@ type PageMetaInput = {
   absoluteTitle?: boolean;
   /**
    * Chemin de l'image de partage propre à la page (ex. généré par un fichier
-   * `opengraph-image` dans son dossier). Par défaut : l'image du site.
+   * route `share-image.png`). Par défaut : l'image du site.
    */
   ogImagePath?: string;
 };
@@ -53,9 +61,9 @@ export function fitDescription(base: string, complements: string[]): string {
   return text;
 }
 
-/** Image de partage par défaut (générée par src/app/opengraph-image.tsx). */
+/** Image de partage par défaut (générée par src/app/share-image.png/route.tsx). */
 const defaultOgImage = {
-  url: "/opengraph-image",
+  url: "/share-image.png",
   width: 1200,
   height: 630,
   alt: `${siteConfig.name} — ${siteConfig.tagline}`,
@@ -68,6 +76,8 @@ const defaultOgImage = {
  * l'image est donc toujours déclarée ici (`ogImagePath` pour une image dédiée).
  */
 export function pageMetadata({
+  lang = "fr",
+  languages,
   title,
   description,
   path,
@@ -81,7 +91,7 @@ export function pageMetadata({
   // Les dimensions ne sont déclarées que pour les visuels générés (1200×630).
   const image = !ogImagePath
     ? defaultOgImage
-    : ogImagePath.endsWith("/opengraph-image")
+    : ogImagePath.endsWith("/share-image.png")
       ? { ...defaultOgImage, url: ogImagePath, alt: title }
       : { url: ogImagePath, alt: title };
   return {
@@ -90,7 +100,13 @@ export function pageMetadata({
     // `alternates` d'une page remplace celui du layout : le flux RSS est redéclaré ici.
     alternates: {
       canonical: path,
-      types: { "application/rss+xml": [{ url: "/rss.xml", title: `${siteConfig.name} — guides` }] },
+      ...(languages && Object.keys(languages).length > 1
+        ? { languages: { ...languages, "x-default": languages.fr ?? path } }
+        : {}),
+      // Le flux RSS ne contient que les guides en français.
+      ...(lang === "fr"
+        ? { types: { "application/rss+xml": [{ url: "/rss.xml", title: `${siteConfig.name} — guides` }] } }
+        : {}),
     },
     openGraph: {
       type,
@@ -98,7 +114,10 @@ export function pageMetadata({
       description,
       url: path,
       siteName: siteConfig.name,
-      locale: siteConfig.locale,
+      locale: lang === "en" ? "en_GB" : siteConfig.locale,
+      ...(languages && Object.keys(languages).length > 1
+        ? { alternateLocale: lang === "en" ? [siteConfig.locale] : ["en_GB"] }
+        : {}),
       images: [image],
       ...(type === "article" ? { publishedTime, modifiedTime } : {}),
     },

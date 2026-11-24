@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { CoverImage } from "@/components/CoverImage";
 import { Tilt } from "@/components/Tilt";
+import { formatDateIn, getDictionary, guidePath } from "@/i18n";
 import { getCategory, getDestination, getReadingTime } from "@/lib/content";
-import { formatDate } from "@/lib/format";
 import type { Guide } from "@/lib/types";
 
 /**
@@ -16,8 +16,13 @@ export function GuideCard({
   guide: Guide;
   headingLevel?: "h2" | "h3";
 }) {
+  const en = guide.lang === "en";
+  const t = getDictionary(guide.lang);
   const category = getCategory(guide.category);
   const destination = guide.destination ? getDestination(guide.destination) : undefined;
+  const categoryName = en ? (category?.nameEn ?? category?.name) : category?.name;
+  const destinationName = en ? (destination?.nameEn ?? destination?.name) : destination?.name;
+  const date = guide.updatedAt ?? guide.publishedAt;
   const Heading = headingLevel;
 
   return (
@@ -31,23 +36,23 @@ export function GuideCard({
           className="aspect-16/10"
           imgClassName="transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           showPlaceholderLabel={false}
-          transitionName={`guide-cover-${guide.slug}`}
+          transitionName={`guide-cover-${guide.lang}-${guide.slug}`}
         />
         <div className="flex flex-1 flex-col gap-3 p-5">
           <p className="flex flex-wrap items-center gap-2 text-xs font-semibold tracking-wider text-terracotta uppercase">
-            <span>{category?.name}</span>
+            <span>{categoryName}</span>
             {destination && (
               <>
                 <span aria-hidden="true" className="text-sand-deep">
                   •
                 </span>
-                <span className="text-sea">{destination.name}</span>
+                <span className="text-sea">{destinationName}</span>
               </>
             )}
           </p>
           <Heading className="font-display text-xl leading-snug font-semibold text-ink">
             <Link
-              href={`/guides/${guide.slug}`}
+              href={guidePath(guide.slug, guide.lang)}
               className="after:absolute after:inset-0 after:content-[''] group-hover:text-sea focus-visible:outline-none"
             >
               {guide.title}
@@ -57,11 +62,9 @@ export function GuideCard({
             {guide.description}
           </p>
           <p className="mt-auto pt-2 text-sm text-ink-soft">
-            <time dateTime={guide.updatedAt ?? guide.publishedAt}>
-              {formatDate(guide.updatedAt ?? guide.publishedAt)}
-            </time>
+            <time dateTime={date}>{formatDateIn(date, guide.lang)}</time>
             <span aria-hidden="true"> · </span>
-            {getReadingTime(guide)} min de lecture
+            {t.readingTime(getReadingTime(guide))}
           </p>
         </div>
       </article>

@@ -33,6 +33,9 @@ function buildCsp({ admin = false } = {}): string {
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  // Le site a plusieurs layouts racine (français, anglais, administration) :
+  // les adresses inconnues sont servies par app/global-not-found.tsx.
+  experimental: { globalNotFound: true },
   partialPrefetching: true,
   poweredByHeader: false,
   // En développement : autorise aussi l'accès via http://127.0.0.1:3000.

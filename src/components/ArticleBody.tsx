@@ -1,22 +1,26 @@
 import { AffiliateCard } from "@/components/Affiliate";
 import { CoverImage } from "@/components/CoverImage";
 import { RichText } from "@/components/RichText";
+import { getDictionary, type Lang } from "@/i18n";
 import type { Block, Section } from "@/lib/types";
 
 function Callout({
   tone,
   title,
   text,
+  lang,
 }: {
   tone: "tip" | "warning";
   title?: string;
   text: string;
+  lang: Lang;
 }) {
+  const t = getDictionary(lang);
   const styles =
     tone === "tip"
       ? "border-sea bg-[#e8f1f1]"
       : "border-terracotta bg-[#f8e9e2]";
-  const label = title ?? (tone === "tip" ? "Conseil" : "À savoir");
+  const label = title ?? (tone === "tip" ? t.tip : t.warning);
   return (
     <aside className={`rounded-r-xl border-l-4 px-5 py-4 ${styles}`} aria-label={label}>
       <p className="font-semibold text-ink">
@@ -26,18 +30,18 @@ function Callout({
         {label}
       </p>
       <p className="mt-1 text-[0.98rem] leading-relaxed text-ink">
-        <RichText text={text} />
+        <RichText text={text} lang={lang} />
       </p>
     </aside>
   );
 }
 
-function BlockView({ block, seed }: { block: Block; seed: string }) {
+function BlockView({ block, seed, lang }: { block: Block; seed: string; lang: Lang }) {
   switch (block.type) {
     case "p":
       return (
         <p>
-          <RichText text={block.text} />
+          <RichText text={block.text} lang={lang} />
         </p>
       );
     case "h3":
@@ -48,7 +52,7 @@ function BlockView({ block, seed }: { block: Block; seed: string }) {
         <List>
           {block.items.map((item) => (
             <li key={item}>
-              <RichText text={item} />
+              <RichText text={item} lang={lang} />
             </li>
           ))}
         </List>
@@ -56,7 +60,7 @@ function BlockView({ block, seed }: { block: Block; seed: string }) {
     }
     case "tip":
     case "warning":
-      return <Callout tone={block.type} title={block.title} text={block.text} />;
+      return <Callout tone={block.type} title={block.title} text={block.text} lang={lang} />;
     case "image":
       return (
         <figure>
@@ -79,7 +83,7 @@ function BlockView({ block, seed }: { block: Block; seed: string }) {
   }
 }
 
-export function ArticleBody({ sections, slug }: { sections: Section[]; slug: string }) {
+export function ArticleBody({ sections, slug, lang = "fr" }: { sections: Section[]; slug: string; lang?: Lang }) {
   return (
     <div className="prose-travel">
       {sections.map((section) => (
@@ -90,7 +94,7 @@ export function ArticleBody({ sections, slug }: { sections: Section[]; slug: str
         >
           {section.title && <h2 id={section.id}>{section.title}</h2>}
           {section.blocks.map((block, i) => (
-            <BlockView key={i} block={block} seed={`${slug}-${section.id}-${i}`} />
+            <BlockView key={i} block={block} seed={`${slug}-${section.id}-${i}`} lang={lang} />
           ))}
         </section>
       ))}
@@ -98,11 +102,11 @@ export function ArticleBody({ sections, slug }: { sections: Section[]; slug: str
   );
 }
 
-export function TableOfContents({ sections }: { sections: Section[] }) {
+export function TableOfContents({ sections, lang = "fr" }: { sections: Section[]; lang?: Lang }) {
   return (
     <nav aria-labelledby="sommaire-titre" className="rounded-2xl border border-sand-deep bg-white p-5">
       <h2 id="sommaire-titre" className="text-sm font-semibold tracking-widest text-terracotta-dark uppercase">
-        Sommaire
+        {getDictionary(lang).contents}
       </h2>
       <ol className="mt-3 space-y-2 text-[0.95rem]">
         {sections

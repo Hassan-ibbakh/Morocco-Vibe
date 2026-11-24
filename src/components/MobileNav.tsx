@@ -9,7 +9,9 @@ import { isActive, type NavItem } from "@/components/NavLinks";
  * Menu mobile accessible : bouton avec aria-expanded, fermeture par Échap,
  * sous-pages (destinations, catégories) listées sous chaque rubrique.
  */
-export function MobileNav({ items }: { items: readonly NavItem[] }) {
+export type MobileNavLabels = { open: string; close: string; search?: string };
+
+export function MobileNav({ items, labels }: { items: readonly NavItem[]; labels: MobileNavLabels }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -39,7 +41,7 @@ export function MobileNav({ items }: { items: readonly NavItem[] }) {
         onClick={() => setOpen((v) => !v)}
         className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-sand-deep text-ink"
       >
-        <span className="sr-only">{open ? "Fermer le menu" : "Ouvrir le menu"}</span>
+        <span className="sr-only">{open ? labels.close : labels.open}</span>
         <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
           {open ? (
             <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -87,11 +89,13 @@ export function MobileNav({ items }: { items: readonly NavItem[] }) {
               </li>
             );
           })}
-          <li>
-            <Link href="/recherche" onClick={close} className="block rounded-lg px-3 py-3 text-lg text-ink">
-              Rechercher
-            </Link>
-          </li>
+          {labels.search && (
+            <li>
+              <Link href="/recherche" onClick={close} className="block rounded-lg px-3 py-3 text-lg text-ink">
+                {labels.search}
+              </Link>
+            </li>
+          )}
         </ul>
       </div>
     </div>
