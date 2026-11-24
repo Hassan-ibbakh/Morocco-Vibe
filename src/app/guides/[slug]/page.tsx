@@ -154,7 +154,7 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
         <Container className="mt-12">
           <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[minmax(0,1fr)_260px]">
             {/* Un seul sommaire : avant le texte sur mobile, colonne collante sur ordinateur. */}
-            {guide.sections.length >= 3 && (
+            {guide.sections.filter((s) => s.title).length >= 3 && (
               <div className="lg:col-start-2 lg:row-start-1">
                 <div className="lg:sticky lg:top-24">
                   <TableOfContents sections={guide.sections} />

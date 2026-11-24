@@ -1,0 +1,24 @@
+name: Fès
+country: Maroc
+region: Fès-Meknès
+summary: Une ville impériale à la médina ancienne et très étendue, réputée pour son artisanat et son patrimoine.
+intro:
+  - Fès abrite l'une des médinas les plus anciennes et les plus vastes du Maroc, inscrite au patrimoine mondial de l'UNESCO. Ses ruelles étroites, ses portes monumentales et ses ateliers d'artisans en font une étape marquante.
+  - La médina se visite à pied. Sa taille et la densité de ses ruelles rendent utile une première découverte accompagnée d'un guide officiel.
+highlights:
+  - La médina historique et ses portes monumentales
+  - Les quartiers d'artisans et les tanneries
+  - Les médersas et leur décor de zellige et de bois sculpté
+  - Les points de vue sur la ville depuis les collines
+practical:
+  - label: Guide
+    text: Pour une première visite, faites appel à un guide officiel, reconnaissable à son badge, par l'intermédiaire de votre hébergement ou d'un office de tourisme.
+  - label: Chaussures
+    text: "Les ruelles sont pavées, pentues par endroits et parfois glissantes : privilégiez des chaussures fermées et confortables."
+  - label: Usages
+    text: "Certains lieux religieux ne sont pas ouverts aux non-musulmans : respectez la signalétique à l'entrée."
+cover: /images/destinations/fes/cover.jpg
+coverAlt: Bab Bou Jeloud, porte monumentale ornée de zellige bleu à l'entrée de la médina de Fès
+order: 20
+featured: true
+demo: true

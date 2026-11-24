@@ -2,7 +2,9 @@
 
 Site de guides de voyage sur le Maroc, en français, construit avec **Next.js 16** (App Router, Cache Components), **TypeScript** et **Tailwind CSS 4**. Toutes les pages sont générées statiquement : le site est rapide, peu coûteux à héberger et prêt pour Vercel.
 
-> ⚠️ Les destinations et les guides livrés sont des **exemples** (`demo: true`). Ils affichent un bandeau « Exemple », sont en `noindex` et sont exclus du sitemap. Réécrivez-les et vérifiez-les, puis retirez `demo: true` pour les publier.
+Le contenu se gère depuis un **tableau de bord d'administration** sur `/keystatic`, avec connexion GitHub en production (voir « Gérer le contenu »).
+
+> ⚠️ Les 5 destinations et les 10 premiers guides sont des **exemples** (case « Exemple à vérifier »). Ils affichent un bandeau « Exemple », sont en `noindex` et sont exclus du sitemap. Relisez-les, puis décochez la case pour les publier. Les 12 autres guides sont publiés.
 
 ## Démarrer
 
@@ -21,7 +23,7 @@ npm run dev        # http://localhost:3000
 | `npm run lint`      | ESLint (règles Next.js et Core Web Vitals)                            |
 | `npm test`          | Tests d'intégrité du contenu (slugs, références, liens internes…)     |
 | `npm run typecheck` | Vérification TypeScript seule (après un premier `dev` ou `build`)     |
-| `npm run nouveau-guide -- "Titre"` | Crée un nouvel article en brouillon (voir plus bas)    |
+| `npm run nouveau-guide -- "Titre"` | Crée un brouillon d'article en ligne de commande       |
 
 ## Pages
 
@@ -39,6 +41,7 @@ npm run dev        # http://localhost:3000
 | `/credits`                     | Auteurs et licences des photos                              |
 | `/plan-du-site`                | Toutes les pages du site, classées par rubrique             |
 | `/rss.xml`                     | Flux RSS des guides publiés                                 |
+| `/keystatic`                   | Tableau de bord d'administration (non indexé)               |
 
 Chaque page a sa propre adresse, ses propres titre et description, et peut être partagée ou indexée séparément. Dans l'en-tête, les rubriques **Destinations** et **Guides** ouvrent un menu déroulant vers leurs sous-pages ; sur mobile, ces sous-pages sont listées dans le menu.
 
@@ -46,41 +49,58 @@ Une URL inconnue renvoie un vrai code **404**, et `/guides/page/1` redirige en *
 
 ## Gérer le contenu
 
-Le contenu est stocké dans des fichiers TypeScript : il n'y a ni base de données ni CMS, donc rien à payer. Les erreurs de structure sont détectées par l'éditeur et au build.
+Le contenu est stocké dans des fichiers du dépôt, modifiables depuis un **tableau de bord d'administration** (Keystatic) : pas de base de données, rien à payer.
 
 ```
-src/content/
-├── categories.ts        # catégories de guides
-├── destinations.ts      # fiches destinations
-└── guides/
-    ├── index.ts         # liste des guides publiés
-    └── *.ts             # un fichier par guide
+content/
+├── settings.yaml        # réglages du site (nom, slogan, textes de l'accueil…)
+├── categories/*.yaml    # catégories de guides
+├── destinations/*.yaml  # fiches destinations
+└── guides/*.mdoc        # articles : en-tête (titre, description…) + texte
+public/images/
+├── guides/<slug>/       # photos des articles
+└── destinations/<slug>/ # photos des destinations
 ```
+
+### Tableau de bord d'administration (`/keystatic`)
+
+Le tableau de bord permet de gérer, sans toucher au code :
+- les **articles** : titre, description, chapeau, catégorie, destination, photo de couverture, texte avec titres, listes, liens, images et encadrés « Conseil », « Attention » et « Lien partenaire » ;
+- les **destinations** et les **catégories** ;
+- les **réglages du site** : nom, slogan, description, e-mail public, réseaux sociaux et textes de l'en-tête de l'accueil.
+
+Les limites SEO (titre de 60 caractères maximum, description de 110 à 160 caractères) sont vérifiées directement dans les formulaires.
+
+**En local** : lancez `npm run dev` et ouvrez `http://localhost:3000/keystatic`. Aucune connexion n'est demandée : les modifications sont écrites directement dans les fichiers du dossier `content/`, et le site les affiche aussitôt. Il suffit ensuite de commiter et de pousser. Seuls les changements de **réglages du site** demandent de relancer `npm run dev`.
+
+**En ligne** : `https://votre-domaine/keystatic` demande une **connexion avec GitHub**. Seules les personnes qui ont un accès en écriture au dépôt peuvent se connecter. Chaque clic sur « Sauvegarder » crée un commit sur `main`, et Vercel republie le site en une à deux minutes.
+
+#### Mise en service de la connexion GitHub (une seule fois)
+
+1. En local, activez le mode GitHub : ajoutez `NEXT_PUBLIC_KEYSTATIC_STORAGE=github` dans `.env.local`, lancez `npm run dev` et ouvrez `http://localhost:3000/keystatic`.
+2. Keystatic propose de **créer une application GitHub** : suivez l'assistant en étant connecté à votre compte GitHub. Il écrit dans `.env.local` les variables `KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET` et `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`.
+3. Installez l'application GitHub sur le dépôt `Morocco-Vibe` si l'assistant le demande.
+4. Copiez ces quatre variables dans **Vercel → Settings → Environment Variables** (environnement Production), puis redéployez.
+5. Sur GitHub (**Settings → Developer settings → GitHub Apps →** votre application), ajoutez l'adresse de retour de production : `https://votre-domaine/api/keystatic/github/oauth/callback`.
+6. Retirez `NEXT_PUBLIC_KEYSTATIC_STORAGE=github` de `.env.local` pour revenir au mode local.
+
+Tant que ces variables ne sont pas définies en production, `/keystatic` s'affiche mais la connexion est refusée (l'API répond « non configuré ») ; le site lui-même fonctionne normalement. Ne commitez jamais `.env.local`.
 
 ### Écrire un article de blog
 
-1. **Créer le brouillon** :
+1. **Créer** : dans le tableau de bord, ouvrez **Articles (guides) → Ajouter**. Vous pouvez aussi créer un brouillon en ligne de commande :
    ```bash
    npm run nouveau-guide -- "Visiter Meknès en une journée" --categorie que-faire --destination fes
    ```
-   Le script crée `src/content/guides/visiter-meknes-en-une-journee.ts` à partir d'un modèle et l'ajoute à la liste des guides. `--destination` est facultatif. Sans argument, le script affiche la liste des catégories et des destinations.
-2. **Écrire** : ouvrez le fichier et remplacez chaque texte « À compléter » (description, chapeau, parties, conseils). Chaque partie (`sections`) apparaît dans le sommaire.
-3. **Relire** : lancez `npm run dev` et ouvrez `http://localhost:3000/guides/<slug>`. Un bandeau « Brouillon » s'affiche.
-4. **Publier** : supprimez la ligne `draft: true`, lancez `npm test`, puis commitez et poussez. Vercel redéploie et l'article apparaît sur le site, dans le sitemap et dans le flux RSS.
+2. **Écrire** : chaque titre de niveau 2 devient une partie du sommaire. Ajoutez une photo de couverture et décrivez-la (texte alternatif). Si la photo n'est pas la vôtre, indiquez son crédit.
+3. **Relire** : cochez « Brouillon » pendant l'écriture. Un brouillon est visible en local et sur les prévisualisations Vercel, mais **jamais sur le site en ligne**.
+4. **Publier** : décochez « Brouillon » et sauvegardez. L'article apparaît sur le site, dans le sitemap et dans le flux RSS.
 
-Un brouillon (`draft: true`) est visible en développement et sur les prévisualisations Vercel (branches, pull requests), mais **jamais en production**. Vous pouvez donc pousser un article inachevé sans risque.
+La case « Exemple à vérifier » (`demo`) affiche un bandeau « Exemple » et exclut la page de Google : elle sert aux contenus à relire avant publication.
 
-**Règles SEO vérifiées par `npm test` :** titre de guide ≤ 60 caractères (au-delà, Google le tronque), description entre 110 et 160 caractères, titres et descriptions uniques. Les destinations et catégories acceptent un champ `seoDescription` facultatif. Sans lui, leur résumé est complété automatiquement. Une catégorie n'est indexée qu'à partir de son premier guide publié (sans `demo: true`).
+**Règles vérifiées par `npm test`** (et par l'intégration continue à chaque push) : titre de guide de 60 caractères maximum, description de 110 à 160 caractères, titres et descriptions uniques, catégories et destinations existantes, liens internes valides, photos présentes. Une catégorie n'est indexée qu'à partir de son premier article publié.
 
-Dans les textes, deux mises en forme sont disponibles : `**gras**` et `[lien](/guides/slug)`. Les types de blocs (`p`, `h3`, `list`, `tip`, `warning`, `image`, `affiliate`) sont décrits dans `src/lib/types.ts`.
-
-**Photos :** les 16 photos actuelles proviennent de Wikimedia Commons, sous licence libre (CC0, CC BY, CC BY-SA). Leur auteur, leur licence et leur source sont enregistrés dans `src/content/photos.ts`. Le crédit s'affiche sous chaque photo et sur la page `/credits`, comme l'exigent ces licences. Pour ajouter une photo :
-
-1. placez le fichier dans `public/images/` (environ 1280 px de large suffit) ;
-2. ajoutez une entrée dans `src/content/photos.ts` (auteur, licence, lien vers la licence, page source) ;
-3. utilisez `cover: { ...photo("mon-id"), alt: "Description précise de la photo" }`.
-
-`npm test` vérifie que chaque photo existe et possède un crédit complet. Sans `src`, une illustration de remplacement s'affiche. `next/image` sert automatiquement les formats AVIF/WebP aux bonnes dimensions (par exemple 433 Ko → 36 Ko en AVIF à 640 px).
+**Photos :** les photos actuelles proviennent de Wikimedia Commons, sous licence libre (CC0, CC BY, CC BY-SA). Leur auteur, leur licence et leur source sont enregistrés dans `src/content/photos.ts`, et le crédit s'affiche sous chaque photo et sur la page `/credits`, comme l'exigent ces licences. Pour une photo ajoutée depuis le tableau de bord, le champ « Crédit photo » joue ce rôle. Sans photo, une illustration de remplacement s'affiche. `next/image` sert automatiquement les formats AVIF/WebP aux bonnes dimensions.
 
 **Animations et effets 3D :** ils sont écrits en CSS (`src/app/globals.css`) avec quelques petits composants, sans bibliothèque JavaScript :
 - **accueil** : chaque mot du titre bascule en 3D, l'un après l'autre ; « ville après ville » est animé d'un reflet doré ; la photo zoome lentement ; les étoiles de zellige flottent en 3D ;
@@ -98,7 +118,7 @@ Les effets à la souris ne s'activent pas sur écran tactile. Tout est désactiv
 
 ## Configuration
 
-L'identité du site (nom, slogan, description, navigation) se trouve dans `src/config/site.ts`. Les variables d'environnement sont listées dans [`.env.example`](.env.example) :
+Le nom, le slogan, la description et les textes de l'accueil se modifient dans le tableau de bord (**Réglages du site**) ; la navigation se trouve dans `src/config/site.ts`. Les variables d'environnement sont listées dans [`.env.example`](.env.example) :
 
 | Variable                     | Utilité                                                          |
 | ---------------------------- | ---------------------------------------------------------------- |
@@ -110,6 +130,7 @@ L'identité du site (nom, slogan, description, navigation) se trouve dans `src/c
 | `RESEND_API_KEY` 🔒          | Active le formulaire de contact (clé [Resend](https://resend.com), offre gratuite) |
 | `CONTACT_TO_EMAIL` 🔒        | Adresse qui reçoit les messages du formulaire                    |
 | `CONTACT_FROM_EMAIL` 🔒      | Expéditeur sur un domaine vérifié chez Resend (facultatif au début) |
+| `KEYSTATIC_GITHUB_CLIENT_ID` 🔒, `KEYSTATIC_GITHUB_CLIENT_SECRET` 🔒, `KEYSTATIC_SECRET` 🔒, `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG` | Connexion au tableau de bord en production (voir « Mise en service de la connexion GitHub ») |
 
 🔒 = variable privée, à définir uniquement dans Vercel, jamais dans le code ni dans un fichier commité.
 
@@ -159,7 +180,8 @@ Les prévisualisations (branches, pull requests) reçoivent `robots: noindex` et
 
 ## Avant la mise en ligne
 
-- [ ] Remplacer les contenus d'exemple et retirer `demo: true` (ou écrire vos propres articles avec `npm run nouveau-guide`).
+- [ ] Relire les contenus d'exemple et décocher « Exemple à vérifier » dans le tableau de bord.
+- [ ] Mettre en service la connexion GitHub du tableau de bord.
 - [ ] Compléter les photos, idéalement avec les vôtres : des photos originales renforcent la crédibilité du site.
 - [ ] Compléter les champs `[À compléter]` des pages légales.
 - [ ] Définir `NEXT_PUBLIC_SITE_URL` et `NEXT_PUBLIC_CONTACT_EMAIL`.

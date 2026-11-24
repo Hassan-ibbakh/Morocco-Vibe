@@ -9,7 +9,8 @@ export default function robots(): MetadataRoute.Robots {
   }
   // /recherche reste explorable : sa balise noindex doit pouvoir être lue.
   return {
-    rules: { userAgent: "*", allow: "/" },
+    // Le tableau de bord et son API n'ont rien à faire dans les moteurs de recherche.
+    rules: { userAgent: "*", allow: "/", disallow: ["/keystatic", "/api/"] },
     sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

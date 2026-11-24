@@ -1,0 +1,24 @@
+name: Merzouga
+country: Maroc
+region: Drâa-Tafilalet
+summary: Un village aux portes du Sahara, point de départ vers les grandes dunes de l'erg Chebbi.
+intro:
+  - Merzouga est un village situé au bord de l'erg Chebbi, un vaste ensemble de dunes de sable dans le sud-est du Maroc.
+  - C'est le point de départ de nombreuses excursions dans le désert, à pied, à dos de dromadaire ou en véhicule, souvent avec une nuit en campement.
+highlights:
+  - Les dunes de l'erg Chebbi
+  - Les levers et couchers de soleil sur le sable
+  - Les nuits étoilées en campement
+  - Les villages et oasis des environs
+practical:
+  - label: Températures
+    text: "Les écarts sont importants entre le jour et la nuit : prévoyez une couche chaude pour le soir, même quand la journée est très chaude."
+  - label: Soleil
+    text: Chapeau, lunettes de soleil, crème solaire et eau en quantité suffisante sont indispensables.
+  - label: Prestataires
+    text: Choisissez un prestataire déclaré, lisez attentivement ce qui est inclus et vérifiez les conditions de transport.
+cover: /images/destinations/merzouga/cover.jpg
+coverAlt: Crête de dune orangée de l'erg Chebbi au coucher du soleil
+order: 50
+featured: true
+demo: true

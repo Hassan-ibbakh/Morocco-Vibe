@@ -467,6 +467,11 @@
   }
 }
 
+/* Tableau de bord (/keystatic) : il occupe tout l'écran, sans l'en-tête ni le pied de page du site. */
+body:has(.admin-root) > :not(main) {
+  display: none;
+}
+
 /* Transitions de page (View Transitions API, via React <ViewTransition>). */
 ::view-transition-group(*) {
   animation-duration: 0.45s;

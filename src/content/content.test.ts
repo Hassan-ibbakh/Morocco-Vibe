@@ -6,7 +6,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { guides as allGuides } from "@/content/guides";
 import { getPhotoBySrc, photos } from "@/content/photos";
 import { legalNav, mainNav } from "@/config/site";
 import {
@@ -15,10 +14,12 @@ import {
   getAllDestinations,
   getTotalGuidePages,
 } from "@/lib/content";
+import { loadGuides, markdocToSections } from "@/lib/content-source";
 import { MAX_DESCRIPTION_LENGTH, MAX_TITLE_LENGTH } from "@/lib/seo";
 import type { Block } from "@/lib/types";
 
 // Tous les guides, brouillons compris : la structure est vérifiée dès l'écriture.
+const allGuides = loadGuides();
 const guides = allGuides;
 // Guides publiés : seuls eux sont soumis aux règles SEO et peuvent être liés.
 const published = allGuides.filter((g) => !g.draft);
@@ -118,18 +119,32 @@ describe("contenu", () => {
     }
   });
 
-  it("chaque photo existe sur le disque et possède un crédit complet", () => {
-    for (const item of [...guides, ...destinations]) {
-      const src = item.cover.src;
+  it("chaque photo existe sur le disque et les crédits enregistrés sont complets", () => {
+    const images = [
+      ...[...guides, ...destinations].map((item) => ({ slug: item.slug, src: item.cover.src })),
+      ...guides.flatMap((g) =>
+        g.sections.flatMap((s) => s.blocks).flatMap((b) => (b.type === "image" ? [{ slug: g.slug, src: b.image.src }] : [])),
+      ),
+    ];
+    for (const { slug, src } of images) {
       if (!src) continue;
-      expect(existsSync(join(process.cwd(), "public", src)), `${item.slug} : ${src} introuvable`).toBe(true);
-      const credit = getPhotoBySrc(src);
-      expect(credit, `${item.slug} : crédit manquant dans photos.ts`).toBeDefined();
-      expect(credit?.author.trim(), item.slug).toBeTruthy();
-      expect(credit?.licenseUrl, item.slug).toMatch(/^https:\/\//);
+      expect(src, slug).toMatch(/^\/images\//);
+      expect(existsSync(join(process.cwd(), "public", src)), `${slug} : ${src} introuvable`).toBe(true);
     }
+    // Photos tierces (Wikimedia Commons) : auteur et licence obligatoires.
     for (const p of Object.values(photos)) {
       expect(existsSync(join(process.cwd(), "public", p.src)), p.src).toBe(true);
+      expect(p.author.trim(), p.src).toBeTruthy();
+      expect(p.licenseUrl, p.src).toMatch(/^https:\/\//);
+      expect(getPhotoBySrc(p.src), p.src).toBe(p);
+    }
+  });
+
+  it("les articles publiés ont un sommaire et un contenu suffisant", () => {
+    for (const g of published) {
+      const titled = g.sections.filter((s) => s.title);
+      expect(titled.length, `${g.slug} : au moins deux parties (titres de niveau 2)`).toBeGreaterThanOrEqual(2);
+      for (const s of g.sections) expect(s.blocks.length, `${g.slug} → ${s.title} est vide`).toBeGreaterThan(0);
     }
   });
 
@@ -145,5 +160,40 @@ describe("contenu", () => {
       }
     }
     expect(broken).toEqual([]);
+  });
+});
+
+describe("conversion Markdoc", () => {
+  it("transforme titres, listes, encadrés et liens en sections", () => {
+    const sections = markdocToSections(
+      [
+        "Texte d'ouverture.",
+        "## Première partie",
+        "Un **mot** et un [lien](/guides).",
+        "### Sous-titre",
+        "1. un\n2. deux",
+        '{% tip title="Astuce" %}\nConseil utile.\n{% /tip %}',
+        "## Première partie",
+        "![Une photo](/images/x.jpg)",
+        '{% affiliate partner="p" url="https://exemple.com" label="Voir" /%}',
+      ].join("\n\n"),
+    );
+    expect(sections.map((s) => [s.id, s.title])).toEqual([
+      ["introduction", ""],
+      ["premiere-partie", "Première partie"],
+      ["premiere-partie-2", "Première partie"],
+    ]);
+    expect(sections[1].blocks).toEqual([
+      { type: "p", text: "Un **mot** et un [lien](/guides)." },
+      { type: "h3", text: "Sous-titre" },
+      { type: "list", ordered: true, items: ["un", "deux"] },
+      { type: "tip", title: "Astuce", text: "Conseil utile." },
+    ]);
+    expect(sections[2].blocks[0]).toMatchObject({ type: "image", image: { src: "/images/x.jpg", alt: "Une photo" } });
+    expect(sections[2].blocks[1]).toMatchObject({ type: "affiliate", partner: "p", label: "Voir" });
+  });
+
+  it("refuse un composant inconnu", () => {
+    expect(() => markdocToSections("{% inconnu %}\nx\n{% /inconnu %}", "test.mdoc")).toThrow(/inconnu/);
   });
 });

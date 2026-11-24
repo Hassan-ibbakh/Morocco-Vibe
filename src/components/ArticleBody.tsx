@@ -83,8 +83,12 @@ export function ArticleBody({ sections, slug }: { sections: Section[]; slug: str
   return (
     <div className="prose-travel">
       {sections.map((section) => (
-        <section key={section.id} aria-labelledby={section.id} className="space-y-[1.1em]">
-          <h2 id={section.id}>{section.title}</h2>
+        <section
+          key={section.id}
+          aria-labelledby={section.title ? section.id : undefined}
+          className="space-y-[1.1em]"
+        >
+          {section.title && <h2 id={section.id}>{section.title}</h2>}
           {section.blocks.map((block, i) => (
             <BlockView key={i} block={block} seed={`${slug}-${section.id}-${i}`} />
           ))}
@@ -101,7 +105,9 @@ export function TableOfContents({ sections }: { sections: Section[] }) {
         Sommaire
       </h2>
       <ol className="mt-3 space-y-2 text-[0.95rem]">
-        {sections.map((s, i) => (
+        {sections
+          .filter((s) => s.title)
+          .map((s, i) => (
           <li key={s.id} className="flex gap-3">
             <span aria-hidden="true" className="font-display text-ink-soft tabular-nums">
               {String(i + 1).padStart(2, "0")}
@@ -110,7 +116,7 @@ export function TableOfContents({ sections }: { sections: Section[] }) {
               {s.title}
             </a>
           </li>
-        ))}
+          ))}
       </ol>
     </nav>
   );

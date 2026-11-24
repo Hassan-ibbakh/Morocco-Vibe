@@ -6,6 +6,8 @@
  * exemples à personnaliser avant la mise en ligne.
  */
 
+import { loadSettings } from "@/lib/content-source";
+
 function resolveSiteUrl(): string {
   // 1. Domaine définitif, à définir dans Vercel (Settings → Environment Variables).
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
@@ -19,27 +21,39 @@ function resolveSiteUrl(): string {
   return "http://localhost:3000";
 }
 
+/** Réglages modifiables depuis le tableau de bord (content/settings.yaml). */
+const settings = loadSettings();
+
 export const siteConfig = {
-  /** Nom du site — à remplacer. */
-  name: "Morocco Vibe",
+  name: settings.name ?? "Morocco Vibe",
   /** Nom court (manifest, onglets). */
-  shortName: "Morocco Vibe",
+  shortName: settings.name ?? "Morocco Vibe",
   /** Slogan affiché sous le logo et dans les métadonnées. */
-  tagline: "Guides pratiques pour voyager au Maroc",
-  /** Description par défaut (≈ 150 caractères). */
+  tagline: settings.tagline ?? "Guides pratiques pour voyager au Maroc",
+  /** Description par défaut (110 à 160 caractères). */
   description:
+    settings.description ??
     "Guides pratiques, idées de visites et conseils fiables pour préparer votre voyage au Maroc : villes impériales, côte atlantique, montagnes et désert.",
   /** URL absolue, sans barre oblique finale. */
   url: resolveSiteUrl(),
   locale: "fr_FR",
   language: "fr",
   /** Adresse publique de contact. Vide = pas d'adresse affichée. */
-  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "",
+  contactEmail: settings.contactEmail ?? process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "",
   /** Nom de l'équipe éditoriale utilisé comme auteur par défaut. */
-  editorialTeam: "La rédaction",
-  /** Réseaux sociaux officiels (laisser vide s'il n'y en a pas). */
-  social: [] as { label: string; href: string }[],
-} as const;
+  editorialTeam: settings.editorialTeam ?? "La rédaction",
+  /** Réseaux sociaux officiels. */
+  social: settings.social,
+  /** Textes de l'en-tête de la page d'accueil. */
+  hero: {
+    eyebrow: settings.heroEyebrow ?? "Carnets de voyage au Maroc",
+    title: settings.heroTitle ?? "Préparez votre voyage au Maroc,",
+    highlight: settings.heroHighlight ?? "ville après ville.",
+    intro:
+      settings.heroIntro ??
+      "Des guides pratiques, des idées de visites et des conseils clairs pour organiser votre séjour : médinas, côte atlantique, montagnes et désert.",
+  },
+};
 
 /**
  * Le site n'est indexable que sur le déploiement de production.

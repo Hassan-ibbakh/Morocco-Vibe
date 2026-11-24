@@ -29,8 +29,8 @@ export const metadata: Metadata = pageMetadata({
 const heroPhoto = photos["hero-erg-chebbi"];
 
 /** Chaque mot du titre entre en 3D, l'un après l'autre. */
-const titleStart = "Préparez votre voyage au Maroc,".split(" ");
-const titleEnd = "ville après ville.".split(" ");
+const titleStart = siteConfig.hero.title.split(/\s+/).filter(Boolean);
+const titleEnd = siteConfig.hero.highlight.split(/\s+/).filter(Boolean);
 const word = (i: number) => ({ "--i": i }) as CSSProperties;
 
 export default function HomePage() {
@@ -74,7 +74,7 @@ export default function HomePage() {
         <Container className="relative grid gap-10 pt-16 pb-20 sm:pt-24 sm:pb-28 lg:grid-cols-[1.2fr_1fr] lg:items-end">
           <div>
             <p className="hero-fade text-sm font-semibold tracking-[0.2em] text-sun uppercase">
-              Carnets de voyage au Maroc
+              {siteConfig.hero.eyebrow}
             </p>
             <h1
               id="hero-titre"
@@ -84,7 +84,8 @@ export default function HomePage() {
                 <Fragment key={i}>
                   <span className="hero-word" style={word(i)}>
                     {w}
-                  </span>{" "}
+                  </span>
+                  {(i < titleStart.length - 1 || titleEnd.length > 0) && " "}
                 </Fragment>
               ))}
               {titleEnd.map((w, i) => (
@@ -97,8 +98,7 @@ export default function HomePage() {
               ))}
             </h1>
             <p className="hero-fade mt-6 max-w-xl text-lg leading-relaxed text-paper/90 [animation-delay:150ms]">
-              Des guides pratiques, des idées de visites et des conseils clairs pour organiser votre
-              séjour : médinas, côte atlantique, montagnes et désert.
+              {siteConfig.hero.intro}
             </p>
             <form
               action="/recherche"

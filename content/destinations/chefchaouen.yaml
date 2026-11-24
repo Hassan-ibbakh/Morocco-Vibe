@@ -1,0 +1,24 @@
+name: Chefchaouen
+country: Maroc
+region: Tanger-Tétouan-Al Hoceïma
+summary: Une petite ville du Rif connue pour ses ruelles aux murs peints en bleu, nichée au pied des montagnes.
+intro:
+  - Chefchaouen est une petite ville des montagnes du Rif, célèbre pour sa médina aux murs blanchis et peints de nuances de bleu.
+  - Son rythme plus calme et la proximité des sentiers de montagne en font une étape appréciée pour ralentir entre deux grandes villes.
+highlights:
+  - La médina et ses ruelles bleues
+  - La place centrale et sa kasbah
+  - Les sentiers de randonnée dans les montagnes alentour
+  - Les points de vue sur la ville au coucher du soleil
+practical:
+  - label: Photos
+    text: "Les habitants vivent dans ces ruelles : demandez toujours l'autorisation avant de photographier une personne ou l'entrée d'une maison."
+  - label: Randonnée
+    text: Pour les randonnées, renseignez-vous sur l'itinéraire et la météo, et faites appel à un guide local si vous ne connaissez pas le terrain.
+  - label: Relief
+    text: "La ville est construite à flanc de montagne : prévoyez des montées et des escaliers."
+cover: /images/destinations/chefchaouen/cover.jpg
+coverAlt: Ruelle pavée bordée de maisons peintes en bleu à Chefchaouen
+order: 30
+featured: true
+demo: true

@@ -1,0 +1,24 @@
+name: Essaouira
+country: Maroc
+region: Marrakech-Safi
+summary: Une ville portuaire de la côte atlantique, avec ses remparts, sa médina et son ambiance détendue.
+intro:
+  - Essaouira est une ville côtière de l'Atlantique, entourée de remparts face à l'océan. Sa médina est inscrite au patrimoine mondial de l'UNESCO.
+  - Le vent y souffle souvent, ce qui attire les amateurs de sports de glisse et rend l'atmosphère plus fraîche que dans l'intérieur du pays.
+highlights:
+  - Les remparts face à l'océan
+  - La médina et ses ateliers d'artisans
+  - Le port de pêche et son activité
+  - La plage et les sports de glisse
+practical:
+  - label: Vent
+    text: "Emportez une couche coupe-vent, même en été : le vent de l'Atlantique rafraîchit nettement l'air."
+  - label: Baignade
+    text: Renseignez-vous sur les conditions de baignade et respectez les consignes affichées sur la plage.
+  - label: Accès
+    text: "La ville est souvent combinée avec Marrakech : vérifiez les liaisons et leurs horaires auprès des transporteurs."
+cover: /images/destinations/essaouira/cover.jpg
+coverAlt: Barques de pêche bleues serrées dans le port d'Essaouira
+order: 40
+featured: false
+demo: true

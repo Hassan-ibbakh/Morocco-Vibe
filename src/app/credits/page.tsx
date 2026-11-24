@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { TextPage } from "@/components/TextPage";
-import { photos } from "@/content/photos";
+import { getPhotoBySrc, photos } from "@/content/photos";
+import { getAllDestinations, getAllGuides } from "@/lib/content";
 import { siteConfig } from "@/config/site";
 import { pageMetadata } from "@/lib/seo";
 
@@ -13,6 +14,10 @@ export const metadata: Metadata = pageMetadata({
 
 export default function CreditsPage() {
   const list = Object.values(photos);
+  // Photos ajoutées depuis le tableau de bord avec un crédit libre.
+  const others = [...getAllDestinations(), ...getAllGuides()].filter(
+    (item) => item.cover.src && item.cover.credit && !getPhotoBySrc(item.cover.src),
+  );
   return (
     <TextPage
       title="Crédits photos"
@@ -45,6 +50,18 @@ export default function CreditsPage() {
           </li>
         ))}
       </ul>
+      {others.length > 0 && (
+        <>
+          <h2>Autres photos</h2>
+          <ul>
+            {others.map((item) => (
+              <li key={item.slug}>
+                {"title" in item ? item.title : item.name} — {item.cover.credit}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
     </TextPage>
   );
 }
